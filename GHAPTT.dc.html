@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#0f1417;color:#e6ecf0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#3fb6c4;text-decoration:none}
+a:hover{color:#66cdd9}
+button{font-family:inherit}
+input,textarea{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2a343b;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes ghpulse{0%,100%{box-shadow:0 0 0 0 rgba(226,104,92,.0)}50%{box-shadow:0 0 0 4px rgba(226,104,92,.14)}}
+@media screen{.gh-print{display:none}}
+@media print{
+  .gh-noprint{display:none!important}
+  body{background:#fff;color:#000}
+  .gh-print{display:block!important;color:#000;padding:20px}
+  .gh-print pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#000}
+}
+</style>
+</helmet>
+<div>
+<div class="gh-noprint">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="max-width:780px;margin:0 auto;padding:30px 20px 70px">
+  <header style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:26px">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:11px;height:11px;border-radius:3px;background:#3fb6c4;display:inline-block"></span>
+        <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">GHAPTT</h1>
+      </div>
+      <p style="margin:6px 0 0;color:#8a99a5;font-size:14px">Golden Hour Admission · Preterm Task Tool</p>
+    </div>
+    <button onClick="{{ onOpenRoles }}" style="flex:none;padding:9px 14px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:13px;font-weight:600;cursor:pointer">Roles &amp; prebrief</button>
+  </header>
+
+  <button onClick="{{ onNew }}" style="width:100%;padding:16px;border-radius:12px;border:1px dashed #35525a;background:#10262b;color:#7fdbe6;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:24px">+ New admission</button>
+
+  <sc-if value="{{ hasAdms }}" hint-placeholder-val="a">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6f7f8b">Active admissions</div>
+    <sc-for list="{{ admCards }}" as="a" hint-placeholder-count="2">
+      <div onClick="{{ a.onOpen }}" style="{{ a.cardStyle }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-size:12px;color:#7f8f9b;font-weight:600">ROOM</div>
+            <div style="font-size:28px;font-weight:800;line-height:1;color:#e6ecf0">{{ a.room }}</div>
+            <div style="font-size:13px;color:#8a99a5;margin-top:6px">{{ a.sub }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div style="display:flex;align-items:center;gap:7px"><span style="{{ a.dotStyle }}"></span><span style="font-size:12px;font-weight:700;color:#9fb0bd">{{ a.statusText }}</span></div>
+            <div style="font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;color:#c4d0d9">{{ a.molLabel }}</div>
+          </div>
+        </div>
+        <div style="height:7px;border-radius:999px;background:#1c252c;overflow:hidden;margin:14px 0 8px"><div style="{{ a.barFillStyle }}"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;color:#7f8f9b">{{ a.pctLabel }} items complete</span>
+          <button onClick="{{ a.onDelete }}" style="padding:5px 10px;border-radius:7px;border:1px solid #2a343b;background:transparent;color:#8a99a5;font-size:12px;font-weight:600;cursor:pointer">Remove</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ noAdms }}" hint-placeholder-val="n">
+  <div style="text-align:center;padding:40px 20px;border:1px solid #212b32;border-radius:14px;background:#12181d">
+    <div style="font-size:15px;color:#9fb0bd;font-weight:600">No active admissions</div>
+    <div style="font-size:13px;color:#6f7f8b;margin-top:6px;line-height:1.5">Start a new admission when a preterm baby is arriving.<br>Everything auto-saves to this device.</div>
+  </div>
+  </sc-if>
+
+  <footer style="margin-top:28px;font-size:12px;color:#5f6f7b;line-height:1.55;text-align:center">
+    Data is stored only on this device (no server). Label admissions by room number — avoid names/MRN.
+  </footer>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdmission }}" hint-placeholder-val="ad">
+<div style="max-width:840px;margin:0 auto">
+  <div style="position:sticky;top:0;z-index:20;background:#0f1417;border-bottom:1px solid #212b32;padding:12px 16px 12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ onBack }}" style="flex:none;padding:8px 12px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">‹ Beds</button>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:17px;font-weight:800;color:#e6ecf0">Room {{ adm.room }}</div>
+        <div style="font-size:12px;color:#7f8f9b">{{ adm.metaText }}</div>
+      </div>
+      <button onClick="{{ onOpenRoles }}" style="flex:none;padding:8px 12px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:13px;font-weight:600;cursor:pointer">Roles</button>
+    </div>
+
+    <div style="display:flex;gap:16px;align-items:center;margin-top:13px">
+      <div style="display:flex;flex-direction:column">
+        <span style="font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:#e6ecf0">{{ adm.molBirth }}<span style="font-size:15px;color:#7f8f9b;font-weight:700"> MOL</span></span>
+        <span style="font-size:12px;color:#7f8f9b;margin-top:5px">since birth · {{ adm.birthClock }}</span>
+      </div>
+      <div style="width:1px;height:40px;background:#2a343b"></div>
+      <div style="display:flex;flex-direction:column">
+        <span style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:#c4d0d9">{{ adm.sinceArrLabel }}</span>
+        <span style="font-size:12px;color:#7f8f9b">since NICU arrival</span>
+      </div>
+      <div style="margin-left:auto"><div style="{{ adm.ringStyle }}"><div style="width:44px;height:44px;border-radius:50%;background:#0f1417;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#e6ecf0">{{ adm.pct }}%</div></div></div>
+    </div>
+
+    <div style="margin-top:13px;position:relative">
+      <div style="height:8px;border-radius:999px;background:#1c252c;overflow:hidden"><div style="{{ adm.barFillStyle }}"></div></div>
+      <div style="position:relative;height:16px;margin-top:4px">
+        <sc-for list="{{ adm.ticks }}" as="tk" hint-placeholder-count="4"><span style="{{ tk.style }}">{{ tk.label }}′</span></sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ adm.hasPast60 }}" hint-placeholder-val="p"><div style="margin-top:4px;font-size:12px;color:#e0a54e;font-weight:700">{{ adm.past60 }}</div></sc-if>
+
+    <div style="display:flex;gap:6px;padding:4px;background:#12181d;border-radius:12px;border:1px solid #222c33;margin-top:14px">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3"><button onClick="{{ tb.onClick }}" style="{{ tb.style }}">{{ tb.label }}</button></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:18px 16px 90px">
+
+    <sc-if value="{{ tabIsChecklist }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
+        <section style="display:flex;flex-direction:column;gap:11px">
+          <div style="{{ ph.headerStyle }}">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:15px;font-weight:800;color:#dce8f4">{{ ph.title }}</span>
+              <span style="font-size:12px;color:#8aa0b3">{{ ph.targetLabel }}</span>
+            </div>
+            <span style="{{ ph.statusStyle }}">{{ ph.statusLabel }} · {{ ph.countLabel }}</span>
+          </div>
+          <sc-if value="{{ ph.hasNote }}" hint-placeholder-val="note"><div style="font-size:13px;color:#e0b070;background:#241f16;border:1px solid #4a3c22;border-radius:8px;padding:8px 12px">⚠ {{ ph.note }}</div></sc-if>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ ph.items }}" as="it" hint-placeholder-count="3">
+              <div style="{{ it.rowStyle }}">
+                <sc-if value="{{ it.isToggle }}" hint-placeholder-val="{{ true }}"><button onClick="{{ it.onToggle }}" style="{{ it.boxStyle }}">{{ it.check }}</button></sc-if>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+                    <span style="{{ it.labelStyle }}">{{ it.label }}</span>
+                    <sc-if value="{{ it.hasFlag }}" hint-placeholder-val="f"><span style="font-size:10px;font-weight:800;letter-spacing:.04em;color:#0f1417;background:#e2685c;padding:3px 8px;border-radius:6px">{{ it.flag }}</span></sc-if>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <sc-if value="{{ it.showSys }}" hint-placeholder-val="{{ true }}"><span style="{{ it.sysStyle }}">{{ it.sysLabel }}</span></sc-if>
+                    <span style="font-size:12px;color:#6f7f8b">{{ it.roleText }}</span>
+                    <sc-if value="{{ it.showTarget }}" hint-placeholder-val="t"><span style="{{ it.targetStyle }}">{{ it.targetLabel }}</span></sc-if>
+                  </div>
+                  <sc-if value="{{ it.isChoice }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ it.options }}" as="opt" hint-placeholder-count="2"><button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.label }}</button></sc-for></div>
+                  </sc-if>
+                  <sc-if value="{{ it.showLog }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                      <sc-if value="{{ it.hasValue }}" hint-placeholder-val="v"><input type="number" inputMode="numeric" value="{{ it.valNum }}" onChange="{{ it.onValue }}" placeholder="mg/dL" style="width:96px;padding:8px 10px;border-radius:8px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px"></sc-if>
+                      <span style="font-size:12px;color:#8c99a4">logged at</span>
+                      <input type="time" value="{{ it.timeValue }}" onChange="{{ it.onEditTime }}" style="padding:7px 10px;border-radius:8px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px;font-variant-numeric:tabular-nums">
+                      <span style="{{ it.molStyle }}">{{ it.molLabel }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabIsGoals }}" hint-placeholder-val="g">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:13px;color:#e0b070;background:#241f16;border:1px solid #4a3c22;border-radius:8px;padding:10px 13px;line-height:1.5">DRAFT — these 24–72h goals are starter items. Tell me what to add, remove, or reword for your unit.</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ longGoals }}" as="lg" hint-placeholder-count="6">
+          <div style="{{ lg.rowStyle }}">
+            <button onClick="{{ lg.onToggle }}" style="{{ lg.boxStyle }}">{{ lg.check }}</button>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+              <span style="{{ lg.labelStyle }}">{{ lg.label }}</span>
+              <span style="{{ lg.sysStyle }}">{{ lg.sysLabel }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabIsDebrief }}" hint-placeholder-val="d">
+    <div style="display:flex;flex-direction:column;gap:26px">
+      <section style="display:flex;flex-direction:column;gap:14px">
+        <h3 style="margin:0;font-size:16px;font-weight:800;color:#e6ecf0">Rapid debrief</h3>
+        <sc-for list="{{ debriefItems }}" as="db" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:13px;font-weight:600;color:#b6c4cf">{{ db.label }}</span>
+            <sc-if value="{{ db.isText }}" hint-placeholder-val="tx"><textarea value="{{ db.value }}" onChange="{{ db.onChange }}" placeholder="Notes…" style="width:100%;min-height:74px;padding:11px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px;line-height:1.5;resize:vertical"></textarea></sc-if>
+            <sc-if value="{{ db.isChoice }}" hint-placeholder-val="ch"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ db.options }}" as="opt" hint-placeholder-count="2"><button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.label }}</button></sc-for></div></sc-if>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-size:16px;font-weight:800;color:#e6ecf0">Summary for reviewers</h3>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button onClick="{{ onCopy }}" style="padding:10px 16px;border-radius:9px;border:none;background:#3fb6c4;color:#04252a;font-size:14px;font-weight:800;cursor:pointer">{{ copyLabel }}</button>
+          <button onClick="{{ onPrint }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:14px;font-weight:700;cursor:pointer">Print / PDF</button>
+          <button onClick="{{ onEmail }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:14px;font-weight:700;cursor:pointer">Email draft…</button>
+        </div>
+        <div style="font-size:12px;color:#6f7f8b;line-height:1.5">Copy or Print now. Automatic server-side sending to reviewers is a later step — I'll wire it once you confirm recipients &amp; your hospital's email path.</div>
+        <pre style="margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#c4d0d9;background:#0c1114;border:1px solid #212b32;border-radius:10px;padding:16px;max-height:420px;overflow:auto">{{ summaryText }}</pre>
+      </section>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showSetup }}" hint-placeholder-val="s">
+<div style="position:fixed;inset:0;z-index:50;background:rgba(5,8,10,.66);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto">
+  <div style="width:min(470px,94vw);background:#161d22;border:1px solid #2a343b;border-radius:16px;padding:22px">
+    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800">New admission</h2>
+    <p style="margin:0 0 18px;font-size:13px;color:#8a99a5;line-height:1.5">Golden hour starts at time of birth. Enter the birth time, then create — the timer runs from birth.</p>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Room / bed space</label>
+        <input value="{{ setup.room }}" onChange="{{ onRoom }}" placeholder="e.g. 12" style="width:100%;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:15px">
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Birth date</label><input type="date" value="{{ setup.birthDate }}" onChange="{{ onBirthDate }}" style="width:100%;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:15px"></div>
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Birth time</label><input type="time" value="{{ setup.birthTime }}" onChange="{{ onBirthTime }}" style="width:100%;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:15px"></div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Gestational age</label><input value="{{ setup.ga }}" onChange="{{ onGa }}" placeholder="27 or 27+3" style="width:100%;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:15px"></div>
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Birth weight (g)</label><input type="number" inputMode="numeric" value="{{ setup.bw }}" onChange="{{ onBw }}" placeholder="900" style="width:100%;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:15px"></div>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">GA band</label>
+        <div style="display:flex;gap:8px"><sc-for list="{{ bandOptions }}" as="bo" hint-placeholder-count="3"><button onClick="{{ bo.onSelect }}" style="{{ bo.style }}">{{ bo.label }}</button></sc-for></div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:22px">
+      <button onClick="{{ onSetupCancel }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:transparent;color:#9fb0bd;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+      <button onClick="{{ onSetupCreate }}" style="{{ createStyle }}">Create &amp; start</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showRoles }}" hint-placeholder-val="r">
+<div style="position:fixed;inset:0;z-index:50;background:rgba(5,8,10,.66);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto">
+  <div style="width:min(560px,94vw);background:#161d22;border:1px solid #2a343b;border-radius:16px;padding:22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <h2 style="margin:0;font-size:20px;font-weight:800">Roles &amp; prebrief</h2>
+      <button onClick="{{ onCloseRoles }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #2a343b;background:#0f1417;color:#c4d0d9;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <p style="margin:0 0 16px;font-size:13px;color:#8a99a5">Golden hour starts at time of birth. MD prebriefs roles &amp; goals top-down: stable temp, sugar, ABX, fluids, isolette.</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <sc-for list="{{ roleRef }}" as="r" hint-placeholder-count="7">
+        <div style="border:1px solid #232d34;border-radius:11px;padding:13px 15px;background:#12181d">
+          <div style="font-size:14px;font-weight:800;color:#7fdbe6;margin-bottom:4px">{{ r.role }}</div>
+          <sc-if value="{{ r.hasDesc }}" hint-placeholder-val="de"><div style="font-size:13px;color:#c4d0d9;line-height:1.5">{{ r.desc }}</div></sc-if>
+          <sc-if value="{{ r.hasBullets }}" hint-placeholder-val="bu"><ul style="margin:8px 0 0;padding-left:18px;color:#a7b6c1;font-size:13px;line-height:1.6"><sc-for list="{{ r.bullets }}" as="b" hint-placeholder-count="2"><li>{{ b }}</li></sc-for></ul></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+<sc-if value="{{ isAdmission }}" hint-placeholder-val="pr"><div class="gh-print"><pre>{{ summaryText }}</pre></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;goldenHourMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:60,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:30,&quot;max&quot;:120,&quot;step&quot;:5,&quot;unit&quot;:&quot;min&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;showClinicalTags&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;use24hClock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.SYS = {
+      thermo:{l:'Thermoreg', c:'#e0954e'},
+      resp:{l:'Respiratory', c:'#4bafbd'},
+      access:{l:'Access / Lines', c:'#d16b81'},
+      fluid:{l:'Fluids / Glucose', c:'#9b83d4'},
+      abx:{l:'Infection / ABX', c:'#5bb98c'},
+      admin:{l:'Admin', c:'#8c97a6'},
+      family:{l:'Family', c:'#c9a24a'}
+    };
+    this.ROLES = {MD:'MD', ARN:'Admit RN', NRN:'NRN', CRN:'Charge RN', PRN:'PRN', RT:'RT', UA:'UA', ANM:'ANM'};
+    this.PHASES = [
+      {id:'p10', target:10, title:'Complete by 10 MOL', items:[
+        {id:'admit', kind:'milestone', label:'NICU admit time', sys:'admin', roles:['ARN'], target:10},
+        {id:'resp', kind:'choice', label:'Respiratory support', sys:'resp', roles:['RT'], options:['ETT','CPAP','HFNC/NC','RA']},
+        {id:'temp', kind:'milestone', label:'1st vital signs — temp & time', sys:'thermo', roles:['ARN','RT'], target:10, critical:true},
+        {id:'rnteam', kind:'task', label:'RN team: weight, measurements, MRSA swab, OG tube', sys:'admin', roles:['ARN','NRN']},
+        {id:'mdorders', kind:'task', label:'MD: write orders & call pharmacy', sys:'admin', roles:['MD']}
+      ]},
+      {id:'p20', target:20, title:'Complete by 20 MOL', items:[
+        {id:'uacdepth', kind:'task', label:'MD / RN: calculate UAC / UVC depth', sys:'access', roles:['MD','ARN']},
+        {id:'movebed', kind:'task', label:'Move patient to bed', sys:'admin', roles:['ARN','NRN']},
+        {id:'preplines', kind:'task', label:'Prepare for lines (arms out for PIV PRN)', sys:'access', roles:['ARN','PRN']},
+        {id:'placelines', kind:'task', label:'MDs place lines / draw labs from UAC (if unable, draw from low-lying UVC)', sys:'access', roles:['MD']},
+        {id:'linestart', kind:'milestone', label:'Lines start time', sys:'access', roles:['MD'], target:20},
+        {id:'labs', kind:'milestone', label:'Labs retrieval time', sys:'access', roles:['ARN'], target:20},
+        {id:'sugar', kind:'milestone', label:'1st blood sugar', sys:'fluid', roles:['ARN'], target:20, hasValue:true}
+      ]},
+      {id:'p40', target:40, title:'Complete by 40 MOL', note:'Plan B: insert rapid PIV if no lines in by 40 MOL', items:[
+        {id:'lineinsert', kind:'task', label:'MDs complete UAC / UVC insertion & give Amp (± start D10% via medline); PIV PRN', sys:'access', roles:['MD'], flag:'DO NOT WAIT FOR XRAY'},
+        {id:'callxray', kind:'task', label:'UA: call for Xray', sys:'admin', roles:['UA']},
+        {id:'reviewxray', kind:'task', label:'MDs review Xray & RNs adjust / secure lines', sys:'access', roles:['MD','ARN']},
+        {id:'attachfluids', kind:'task', label:'RN: attach fluids & start infusions / meds', sys:'fluid', roles:['ARN','PRN']},
+        {id:'amp', kind:'milestone', label:'Amp (ampicillin) given', sys:'abx', roles:['ARN'], target:40, critical:true},
+        {id:'sutured', kind:'milestone', label:'Lines sutured time', sys:'access', roles:['MD'], target:40},
+        {id:'fluids', kind:'milestone', label:'Fluids start time', sys:'fluid', roles:['ARN'], target:40},
+        {id:'gent', kind:'milestone', label:'Gent (gentamicin) given', sys:'abx', roles:['ARN'], target:60, critical:true},
+        {id:'pivneeded', kind:'choice', label:'PIV needed?', sys:'access', roles:['ARN'], options:['Yes','No']},
+        {id:'pivstart', kind:'milestone', label:'PIV start time', sys:'access', roles:['ARN'], target:40, dependsOn:{item:'pivneeded', val:'Yes'}}
+      ]},
+      {id:'p60', target:60, title:'Complete by 60 MOL', items:[
+        {id:'isolette', kind:'task', label:'RN: perform all additional tasks with isolette closed', sys:'thermo', roles:['ARN']},
+        {id:'incubator', kind:'milestone', label:'Incubator close time', sys:'thermo', roles:['ARN'], target:60, critical:true}
+      ]}
+    ];
+    this.DEBRIEF = [
+      {id:'delays', kind:'text', label:'Identify time delays & reason why'},
+      {id:'done60', kind:'choice', label:'All done by 60 MOL?', options:['Yes','No']},
+      {id:'done90', kind:'choice', label:'All done by 90 MOL?', options:['Yes','No']},
+      {id:'successful', kind:'choice', label:'Line successful', options:['UAC','UVC']},
+      {id:'tpn', kind:'choice', label:'TPN site', options:['UAC','UVC','PIV']},
+      {id:'surfactant', kind:'choice', label:'Surfactant given?', options:['Yes','No']}
+    ];
+    this.LONG = [
+      {id:'lt_temp', label:'Temperature stable 36.5–37.5°C in closed incubator', sys:'thermo'},
+      {id:'lt_glucose', label:'Glucose stable; starter fluids / TPN running at goal', sys:'fluid'},
+      {id:'lt_resp', label:'Respiratory support optimized; blood gas reviewed', sys:'resp'},
+      {id:'lt_lines', label:'UAC / UVC position confirmed on Xray & secured', sys:'access'},
+      {id:'lt_abx', label:'Antibiotics dosed; 48h culture review planned', sys:'abx'},
+      {id:'lt_surf', label:'Surfactant given / not-indicated documented', sys:'resp'},
+      {id:'lt_nutrition', label:'Trophic feeds / nutrition plan discussed', sys:'fluid'},
+      {id:'lt_neuro', label:'Head ultrasound scheduled per unit protocol', sys:'admin'},
+      {id:'lt_family', label:'Family updated; consent & contact info obtained', sys:'family'},
+      {id:'lt_devcare', label:'Developmental care: positioning, minimal stimulation', sys:'admin'}
+    ];
+    this.ROLE_REF = [
+      {role:'MD', desc:'Prebrief roles & goals with the team (stable temp, sugar, ABX, fluids, isolette) — top down.', bullets:['Plan B: insert rapid PIV if no lines in by 40 MOL']},
+      {role:'Admit RN / NRN / Charge RN', desc:'Hands-on care — help with line placement & assist in getting labs.', bullets:['NRN brings the timer to delivery & starts it at birth']},
+      {role:'PRN — before delivery', desc:'', bullets:['Set up & connect lines; drop UAC / UVC setup for MDs','Get heparin flush & sterile gloves / hat for MDs','Call pharmacy — heads up for UAC & UVC fluids']},
+      {role:'PRN — after delivery', desc:'', bullets:['Wait for fluids & prime the lines with each bag','Prepare amp sterilely & D10 infusion syringe','Runner for items']},
+      {role:'ANM', desc:'Family support & call out times on the timer to the team.', bullets:[]},
+      {role:'RT', desc:'Prepare CPAP or respiratory support; aid in getting a gas at admission.', bullets:[]},
+      {role:'UA', desc:'Admit patient into EPIC & call Xray.', bullets:[]}
+    ];
+    this.state = {
+      screen:'home', activeId:null, tab:'checklist',
+      showSetup:false, showRoles:false, setup:this.blankSetup(),
+      admissions:{}, order:[], now:Date.now(), copied:false
+    };
+  }
+  pad2(n){ return String(n).padStart(2,'0'); }
+  blankSetup(){ const d=new Date(); return {room:'', birthDate:d.getFullYear()+'-'+this.pad2(d.getMonth()+1)+'-'+this.pad2(d.getDate()), birthTime:this.pad2(d.getHours())+':'+this.pad2(d.getMinutes()), ga:'', bw:'', band:'', bandManual:false}; }
+  componentDidMount(){ this.load(); this._t=setInterval(()=>this.setState({now:Date.now()}),1000); }
+  componentWillUnmount(){ clearInterval(this._t); clearTimeout(this._c); }
+  load(){ try{ const raw=localStorage.getItem('ghaptt.v1'); if(raw){ const o=JSON.parse(raw); this.setState({admissions:o.admissions||{}, order:o.order||[]}); } }catch(e){} }
+  save(admissions, order){ try{ localStorage.setItem('ghaptt.v1', JSON.stringify({admissions:admissions, order:order})); }catch(e){} }
+
+  fmtClock(ms){ if(ms==null||isNaN(ms)) return '—'; const d=new Date(ms); let h=d.getHours(); const m=this.pad2(d.getMinutes()); if(this.props.use24hClock??true) return this.pad2(h)+':'+m; const ap=h<12?'a':'p'; h=h%12; if(h===0)h=12; return h+':'+m+ap; }
+  fmtDateTime(ms){ if(ms==null) return '—'; const d=new Date(ms); return this.pad2(d.getMonth()+1)+'/'+this.pad2(d.getDate())+' '+this.fmtClock(ms); }
+  fmtInput(ms){ const d=new Date(ms); return this.pad2(d.getHours())+':'+this.pad2(d.getMinutes()); }
+  molOf(adm,ms){ return Math.max(0, Math.floor((ms-adm.birthMs)/60000)); }
+
+  relevant(adm,it){ if(!it.dependsOn) return true; const dd=adm.data[it.dependsOn.item]; return !!dd && dd.value===it.dependsOn.val; }
+  isDone(adm,it){ const dd=adm.data[it.id]||{}; return it.kind==='choice' ? (dd.value!=null && dd.value!=='') : !!dd.done; }
+  counts(adm){ let d=0,t=0; this.PHASES.forEach(ph=>ph.items.forEach(it=>{ if(!this.relevant(adm,it))return; t++; if(this.isDone(adm,it))d++; })); return {d,t,pct:t?Math.round(d/t*100):0}; }
+  phaseCounts(adm,ph){ let d=0,t=0; ph.items.forEach(it=>{ if(!this.relevant(adm,it))return; t++; if(this.isDone(adm,it))d++; }); return {d,t}; }
+  anyOverdue(adm,nowMol){ let o=false; this.PHASES.forEach(ph=>ph.items.forEach(it=>{ if(!this.relevant(adm,it))return; if(it.target!=null && !this.isDone(adm,it) && nowMol>it.target) o=true; })); return o; }
+
+  mutate(admId, fn){ this.setState(s=>{ const src=s.admissions[admId]; if(!src) return {}; const adm={...src, data:{...src.data}, debrief:{...src.debrief}, long:{...src.long}}; fn(adm); const admissions={...s.admissions,[admId]:adm}; this.save(admissions, s.order); return {admissions}; }); }
+  toggleItem(admId,id){ this.mutate(admId, adm=>{ const cur={...(adm.data[id]||{})}; if(cur.done){ cur.done=false; cur.atMs=null; cur.val=undefined; } else { cur.done=true; cur.atMs=Date.now(); } adm.data[id]=cur; }); }
+  editTime(admId,id,hhmm){ if(!hhmm) return; this.mutate(admId, adm=>{ const p=hhmm.split(':'); const d=new Date(adm.birthMs); d.setHours(Number(p[0]),Number(p[1]),0,0); let t=d.getTime(); if(t<adm.birthMs) t+=86400000; const cur={...(adm.data[id]||{})}; cur.done=true; cur.atMs=t; adm.data[id]=cur; }); }
+  setChoice(admId,id,val){ this.mutate(admId, adm=>{ const cur={...(adm.data[id]||{})}; cur.value=val; adm.data[id]=cur; }); }
+  setValue(admId,id,val){ this.mutate(admId, adm=>{ const cur={...(adm.data[id]||{})}; cur.val=val; if(val!=='' && val!=null){ cur.done=true; if(cur.atMs==null) cur.atMs=Date.now(); } adm.data[id]=cur; }); }
+  setDebrief(admId,id,val){ this.mutate(admId, adm=>{ adm.debrief[id]=val; }); }
+  toggleLong(admId,id){ this.mutate(admId, adm=>{ adm.long[id]=!adm.long[id]; }); }
+
+  setSetup(k,v,manual){ this.setState(s=>{ const setup={...s.setup,[k]:v}; if(k==='band') setup.bandManual=true; return {setup}; }); }
+  bandFromGa(ga){ const g=parseFloat(ga); if(!g) return ''; if(g<28) return '<28'; if(g<32) return '28–31'; if(g<=36) return '32–36'; return ''; }
+  setGa(v){ this.setState(s=>({setup:{...s.setup, ga:v, band: s.setup.bandManual? s.setup.band : this.bandFromGa(v)}})); }
+  openSetup(){ this.setState({showSetup:true, setup:this.blankSetup()}); }
+  createAdmission(){ const s=this.state, su=s.setup; if(!(su.room && su.birthDate && su.birthTime)) return; const birthMs=new Date(su.birthDate+'T'+su.birthTime).getTime(); const id='a'+Date.now().toString(36); const adm={id, room:su.room, ga:su.ga, bw:su.bw, band: su.band||this.bandFromGa(su.ga), birthMs, admitMs:Date.now(), data:{}, debrief:{}, long:{}, createdAt:Date.now()}; const admissions={...s.admissions,[id]:adm}; const order=[id,...s.order]; this.save(admissions,order); this.setState({admissions, order, screen:'admission', activeId:id, tab:'checklist', showSetup:false, setup:this.blankSetup()}); }
+  deleteAdmission(id){ const a=this.state.admissions[id]; if(!confirm('Remove admission for Room '+((a&&a.room)||'')+'? This clears its saved data.')) return; this.setState(s=>{ const admissions={...s.admissions}; delete admissions[id]; const order=s.order.filter(x=>x!==id); this.save(admissions,order); const closing=s.activeId===id; return {admissions, order, screen: closing?'home':s.screen, activeId: closing?null:s.activeId}; }); }
+  openAdm(id){ this.setState({screen:'admission', activeId:id, tab:'checklist'}); }
+  setTab(t){ this.setState({tab:t, copied:false}); }
+  doCopy(text){ try{ navigator.clipboard.writeText(text).then(()=>{ this.setState({copied:true}); clearTimeout(this._c); this._c=setTimeout(()=>this.setState({copied:false}),2000); }); }catch(e){} }
+  doEmail(room, text){ const subj='GHAPTT — Room '+(room||'')+' Golden Hour summary'; window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text); }
+
+  optStyle(sel){ return {padding:'8px 14px',borderRadius:'8px',border:'1px solid '+(sel?'#3fb6c4':'#2c3740'),background:sel?'#12333a':'transparent',color:sel?'#8fe0ec':'#c4d0d9',fontSize:'14px',fontWeight:700,cursor:'pointer'}; }
+
+  itemVM(adm,it,nowMol){
+    const dd=adm.data[it.id]||{};
+    const isChoice=it.kind==='choice';
+    const done=this.isDone(adm,it);
+    const overdue = it.target!=null && !done && nowMol>it.target;
+    const sys=this.SYS[it.sys]||this.SYS.admin;
+    const showTags=this.props.showClinicalTags??true;
+    const accent = done?'#4bbf87' : overdue?(it.critical?'#e2685c':'#e0a54e') : sys.c;
+    const rowStyle={display:'flex',gap:'12px',alignItems:'flex-start',padding:'13px 14px',borderRadius:'11px',border:'1px solid '+(overdue?'#4a2f2f':'#232d34'),borderLeft:'4px solid '+accent,background:done?'#111c19':(overdue?'#211719':'#161d22')};
+    if(overdue && it.critical) rowStyle.animation='ghpulse 2s ease-in-out infinite';
+    return {
+      isChoice, isToggle:!isChoice, showLog:(!isChoice && done), hasValue:!!it.hasValue,
+      label:it.label, labelStyle:{fontSize:'15px',lineHeight:'1.35',fontWeight:600,color:done?'#93b0a6':'#e6ecf0'},
+      flag:it.flag||'', hasFlag:!!it.flag,
+      showSys:showTags, sysLabel:sys.l, sysStyle:{fontSize:'11px',fontWeight:700,letterSpacing:'.03em',textTransform:'uppercase',color:sys.c},
+      roleText:it.roles.map(r=>this.ROLES[r]).join(' · '),
+      showTarget:it.target!=null, targetLabel: overdue?('overdue · target '+it.target+' MOL'):('target '+it.target+' MOL'),
+      targetStyle:{fontSize:'11px',fontWeight:700,padding:'2px 9px',borderRadius:'999px',color:overdue?'#f0b6ae':'#7f8f9b',background:overdue?'#3a2020':'#1b232a',border:'1px solid '+(overdue?'#5a2f2f':'#28323a'),whiteSpace:'nowrap'},
+      check:done?'✓':'', onToggle:()=>this.toggleItem(adm.id,it.id),
+      boxStyle:{width:'30px',height:'30px',flex:'none',borderRadius:'8px',border:'2px solid '+(done?'#4bbf87':overdue?'#e0a54e':'#3a454d'),background:done?'#4bbf87':'transparent',color:'#0f1417',fontSize:'17px',fontWeight:800,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:'1px'},
+      timeValue: dd.atMs!=null?this.fmtInput(dd.atMs):'', onEditTime:e=>this.editTime(adm.id,it.id,e.target.value),
+      molLabel:(done&&dd.atMs!=null)?this.molOf(adm,dd.atMs)+' MOL':'', molStyle:{fontSize:'13px',fontWeight:800,color:'#4bbf87',fontVariantNumeric:'tabular-nums'},
+      valNum: dd.val!=null?dd.val:'', onValue:e=>this.setValue(adm.id,it.id,e.target.value),
+      options: isChoice? it.options.map(o=>({label:o, selected:dd.value===o, onSelect:()=>this.setChoice(adm.id,it.id,o), style:this.optStyle(dd.value===o)})) : []
+    };
+  }
+
+  buildSummary(adm,nowMol){
+    const L=[];
+    L.push('GOLDEN HOUR ADMISSION SUMMARY — GHAPTT');
+    L.push('Room '+(adm.room||'—')+'   |   GA '+(adm.ga?adm.ga+' wk':'—')+(adm.band?' (band '+adm.band+')':'')+'   |   BW '+(adm.bw?adm.bw+' g':'—'));
+    L.push('Birth: '+this.fmtDateTime(adm.birthMs)+'   |   Admission timer started: '+this.fmtClock(adm.admitMs));
+    L.push('Elapsed at export: '+nowMol+' MOL');
+    const c=this.counts(adm);
+    L.push('Completion: '+c.d+'/'+c.t+' items ('+c.pct+'%)');
+    const missed=[];
+    this.PHASES.forEach(ph=>{
+      L.push(''); L.push('— '+ph.title+' —');
+      ph.items.forEach(it=>{ if(!this.relevant(adm,it))return; const dd=adm.data[it.id]||{};
+        if(it.kind==='choice'){ L.push('  • '+it.label+': '+(dd.value||'(not set)')); if(!dd.value) missed.push(it.label); }
+        else { const done=!!dd.done; const v=(it.hasValue&&dd.val)?(' ['+dd.val+' mg/dL]'):''; const when=(done&&dd.atMs!=null)?(this.molOf(adm,dd.atMs)+' MOL @ '+this.fmtClock(dd.atMs)):'(not recorded)'; L.push('  '+(done?'[x]':'[ ]')+' '+it.label+v+' — '+when); if(!done) missed.push(it.label+(it.target!=null?(' (target '+it.target+' MOL)'):'')); }
+      });
+    });
+    L.push(''); L.push('INCOMPLETE / MISSED ('+missed.length+'):');
+    if(missed.length) missed.forEach(m=>L.push('  - '+m)); else L.push('  none — all items complete');
+    L.push(''); L.push('RAPID DEBRIEF:');
+    this.DEBRIEF.forEach(d=>{ const v=adm.debrief?adm.debrief[d.id]:''; L.push('  • '+d.label+': '+(v||'(blank)')); });
+    const done24=this.LONG.filter(g=>adm.long&&adm.long[g.id]);
+    if(done24.length){ L.push(''); L.push('24–72h GOALS MET (DRAFT):'); done24.forEach(g=>L.push('  - '+g.label)); }
+    L.push(''); L.push('Generated by GHAPTT · times are minutes of life (MOL) from birth.');
+    return L.join('\n');
+  }
+
+  renderVals(){
+    const s=this.state, now=s.now;
+    const GH=this.props.goldenHourMinutes??60;
+    const base={
+      isHome:s.screen==='home', isAdmission:s.screen==='admission',
+      showSetup:s.showSetup, showRoles:s.showRoles,
+      onNew:()=>this.openSetup(), onOpenRoles:()=>this.setState({showRoles:true}), onCloseRoles:()=>this.setState({showRoles:false}),
+      onBack:()=>this.setState({screen:'home'}),
+      roleRef:this.ROLE_REF.map(r=>({role:r.role, desc:r.desc, hasDesc:!!r.desc, bullets:r.bullets, hasBullets:r.bullets.length>0})),
+      setup:s.setup, onRoom:e=>this.setSetup('room',e.target.value), onBirthDate:e=>this.setSetup('birthDate',e.target.value), onBirthTime:e=>this.setSetup('birthTime',e.target.value), onGa:e=>this.setGa(e.target.value), onBw:e=>this.setSetup('bw',e.target.value),
+      bandOptions:['<28','28–31','32–36'].map(b=>({label:b+' wk', selected:s.setup.band===b, onSelect:()=>this.setSetup('band',b,true), style:this.optStyle(s.setup.band===b)})),
+      onSetupCancel:()=>this.setState({showSetup:false}), onSetupCreate:()=>this.createAdmission(),
+      admCards:[], hasAdms:false, noAdms:true,
+      adm:null, phases:[], tabs:[], longGoals:[], debriefItems:[], summaryText:'',
+      tabIsChecklist:false, tabIsGoals:false, tabIsDebrief:false, copyLabel:'Copy summary',
+      onCopy:()=>{}, onPrint:()=>window.print(), onEmail:()=>{}, createStyle:{}
+    };
+    const canCreate=!!(s.setup.room && s.setup.birthDate && s.setup.birthTime);
+    base.createStyle={padding:'10px 18px',borderRadius:'9px',border:'none',background:canCreate?'#3fb6c4':'#233038',color:canCreate?'#04252a':'#5f6f7b',fontSize:'14px',fontWeight:800,cursor:canCreate?'pointer':'not-allowed'};
+
+    base.admCards=s.order.map(id=>{ const a=s.admissions[id]; if(!a) return null; const nm=this.molOf(a,now); const c=this.counts(a); const od=this.anyOverdue(a,nm); const complete=c.pct===100;
+      return {id, room:a.room||'—', sub:(a.band?a.band+' wk':'GA —')+' · '+(a.bw?a.bw+' g':'BW —'), molLabel:nm+' MOL', pct:c.pct, pctLabel:c.d+'/'+c.t,
+        statusText: complete?'complete': od?'action needed':'in progress',
+        onOpen:()=>this.openAdm(id), onDelete:(e)=>{e.stopPropagation(); this.deleteAdmission(id);},
+        cardStyle:{padding:'16px 17px',borderRadius:'14px',border:'1px solid '+(od?'#4a2f2f':'#232d34'),background:'#12181d',cursor:'pointer'},
+        dotStyle:{width:'9px',height:'9px',borderRadius:'50%',display:'inline-block',background:complete?'#4bbf87':od?'#e2685c':'#3fb6c4'},
+        barFillStyle:{height:'100%',width:c.pct+'%',borderRadius:'999px',background:complete?'#4bbf87':od?'#e0a54e':'#3fb6c4'}};
+    }).filter(Boolean);
+    base.hasAdms=base.admCards.length>0; base.noAdms=!base.hasAdms;
+
+    if(s.screen==='admission' && s.admissions[s.activeId]){
+      const adm=s.admissions[s.activeId]; const nowMol=this.molOf(adm,now); const c=this.counts(adm);
+      const secs=Math.max(0,Math.floor((now-adm.admitMs)/1000)); const mm=Math.floor(secs/60);
+      const barPct=Math.min(100, GH?(nowMol/GH*100):0);
+      base.adm={ id:adm.id, room:adm.room||'—',
+        metaText:(adm.ga?adm.ga+' wk':'GA —')+(adm.band?' · band '+adm.band:'')+' · '+(adm.bw?adm.bw+' g':'BW —'),
+        molBirth:nowMol, birthClock:this.fmtClock(adm.birthMs), sinceArrLabel:mm+':'+this.pad2(secs%60),
+        pct:c.pct, pctLabel:c.d+'/'+c.t,
+        ringStyle:{width:'56px',height:'56px',borderRadius:'50%',background:'conic-gradient(#3fb6c4 '+(c.pct*3.6)+'deg,#233038 0)',display:'flex',alignItems:'center',justifyContent:'center'},
+        barFillStyle:{height:'100%',width:barPct+'%',borderRadius:'999px',background:'#3fb6c4',transition:'width .5s linear'},
+        ticks:[10,20,40,60].map(t=>{ const lp=GH?Math.min(100,t/GH*100):0; return {label:t, style:{position:'absolute',left:lp+'%',transform:'translateX(-50%)',fontSize:'10px',fontWeight:700,color:nowMol>=t?'#3fb6c4':'#5f6f7b'}}; }),
+        hasPast60:nowMol>GH, past60:'+'+(nowMol-GH)+' min past '+GH+"' golden hour"
+      };
+      base.phases=this.PHASES.map(ph=>{ const pc=this.phaseCounts(adm,ph); const complete=pc.t>0&&pc.d===pc.t; const overdue=!complete&&nowMol>ph.target&&pc.d<pc.t;
+        return {id:ph.id, title:ph.title, targetLabel:'complete by '+ph.target+' MOL', countLabel:pc.d+'/'+pc.t, note:ph.note||'', hasNote:!!ph.note,
+          statusLabel: complete?'✓ complete': overdue?'overdue': (nowMol>=ph.target-5?'in progress':'upcoming'),
+          statusStyle:{fontSize:'12px',fontWeight:800,color:complete?'#4bbf87':overdue?'#f0a89f':'#7fb0d8',whiteSpace:'nowrap'},
+          headerStyle:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'10px',padding:'11px 14px',borderRadius:'11px',background:overdue?'#241a1b':'#14212f',border:'1px solid '+(overdue?'#4a2f2f':'#213a52')},
+          items: ph.items.filter(it=>this.relevant(adm,it)).map(it=>this.itemVM(adm,it,nowMol))};
+      });
+      base.tabs=[['checklist','Checklist'],['goals','24–72h goals'],['debrief','Debrief & summary']].map(t=>({label:t[1], onClick:()=>this.setTab(t[0]), style:{flex:'1',padding:'9px 8px',borderRadius:'9px',border:'none',cursor:'pointer',fontSize:'13px',fontWeight:700,background:s.tab===t[0]?'#3fb6c4':'transparent',color:s.tab===t[0]?'#04252a':'#8a99a5'}}));
+      base.tabIsChecklist=s.tab==='checklist'; base.tabIsGoals=s.tab==='goals'; base.tabIsDebrief=s.tab==='debrief';
+      base.longGoals=this.LONG.map(g=>{ const done=!!(adm.long&&adm.long[g.id]); const sys=this.SYS[g.sys]||this.SYS.admin;
+        return {id:g.id, label:g.label, check:done?'✓':'', onToggle:()=>this.toggleLong(adm.id,g.id),
+          labelStyle:{fontSize:'15px',lineHeight:'1.35',fontWeight:600,color:done?'#93b0a6':'#e6ecf0'},
+          sysLabel:this.props.showClinicalTags??true?sys.l:'', sysStyle:{fontSize:'11px',fontWeight:700,letterSpacing:'.03em',textTransform:'uppercase',color:sys.c},
+          boxStyle:{width:'28px',height:'28px',flex:'none',borderRadius:'8px',border:'2px solid '+(done?'#4bbf87':'#3a454d'),background:done?'#4bbf87':'transparent',color:'#0f1417',fontSize:'16px',fontWeight:800,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:'1px'},
+          rowStyle:{display:'flex',gap:'12px',alignItems:'flex-start',padding:'13px 14px',borderRadius:'11px',border:'1px solid #232d34',borderLeft:'4px solid '+(done?'#4bbf87':sys.c),background:done?'#111c19':'#161d22'}};
+      });
+      base.debriefItems=this.DEBRIEF.map(d=>{ const v=(adm.debrief&&adm.debrief[d.id])||''; if(d.kind==='text') return {id:d.id, label:d.label, isText:true, isChoice:false, value:v, onChange:e=>this.setDebrief(adm.id,d.id,e.target.value), options:[]}; return {id:d.id, label:d.label, isText:false, isChoice:true, value:v, options:d.options.map(o=>({label:o, selected:v===o, onSelect:()=>this.setDebrief(adm.id,d.id,o), style:this.optStyle(v===o)}))}; });
+      base.summaryText=this.buildSummary(adm,nowMol);
+      base.copyLabel=s.copied?'Copied ✓':'Copy summary';
+      base.onCopy=()=>this.doCopy(base.summaryText); base.onEmail=()=>this.doEmail(adm.room, base.summaryText); base.onPrint=()=>window.print();
+    }
+    return base;
+  }
+}
+</script>
+</body>
+</html>

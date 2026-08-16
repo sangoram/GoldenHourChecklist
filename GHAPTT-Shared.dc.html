@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#0f1417;color:#e6ecf0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:#3fb6c4;text-decoration:none}
+a:hover{color:#66cdd9}
+button,input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2a343b;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+@keyframes ghpulse{0%,100%{box-shadow:0 0 0 0 rgba(226,104,92,.0)}50%{box-shadow:0 0 0 4px rgba(226,104,92,.14)}}
+@keyframes ghpulsea{0%,100%{box-shadow:0 0 0 0 rgba(224,165,78,.0)}50%{box-shadow:0 0 0 4px rgba(224,165,78,.18)}}
+@media screen{.gh-print{display:none}}
+@media print{
+  .gh-noprint{display:none!important}
+  body{background:#fff;color:#000}
+  .gh-print{display:block!important;color:#000;padding:14px}
+  .gh-print pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#000}
+  .gh-print table{width:100%;border-collapse:collapse;font-size:10.5px}
+  .gh-print th,.gh-print td{border:1px solid #999;padding:4px 5px;vertical-align:top;text-align:left}
+  .gh-print th{background:#e8eef4}
+}
+</style>
+</helmet>
+<div>
+<div class="gh-noprint">
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="max-width:780px;margin:0 auto;padding:30px 20px 70px">
+  <header style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:26px">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:11px;height:11px;border-radius:3px;background:#3fb6c4;display:inline-block"></span>
+        <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em">GHAPTT</h1>
+        <span style="{{ syncBadgeStyle }}"><span style="{{ syncDotStyle }}"></span>{{ syncLabel }}</span>
+      </div>
+      <p style="margin:6px 0 0;color:#8a99a5;font-size:14px">Golden Hour Admission · Preterm Task Tool — shared board</p>
+    </div>
+    <button onClick="{{ onOpenRoles }}" style="{{ rolesBtnStyle }}">{{ rolesBtnLabel }}</button>
+  </header>
+
+  <button onClick="{{ onNew }}" style="width:100%;padding:16px;border-radius:12px;border:1px dashed #35525a;background:#10262b;color:#7fdbe6;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:24px">+ New admission</button>
+
+  <sc-if value="{{ hasAdms }}" hint-placeholder-val="a">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6f7f8b">Active admissions</div>
+    <sc-for list="{{ admCards }}" as="a" hint-placeholder-count="2">
+      <div onClick="{{ a.onOpen }}" style="{{ a.cardStyle }}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-size:12px;color:#7f8f9b;font-weight:600">BED</div>
+            <div style="font-size:26px;font-weight:800;line-height:1;color:#e6ecf0">{{ a.room }}</div>
+            <div style="font-size:13px;color:#8a99a5;margin-top:6px">{{ a.sub }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div style="display:flex;align-items:center;gap:7px"><span style="{{ a.dotStyle }}"></span><span style="font-size:12px;font-weight:700;color:#9fb0bd">{{ a.statusText }}</span></div>
+            <div style="{{ a.molStyle }}">{{ a.molLabel }}</div>
+          </div>
+        </div>
+        <div style="height:7px;border-radius:999px;background:#1c252c;overflow:hidden;margin:14px 0 8px"><div style="{{ a.barFillStyle }}"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;color:#7f8f9b">{{ a.pctLabel }} items complete</span>
+          <button onClick="{{ a.onDelete }}" style="padding:5px 10px;border-radius:7px;border:1px solid #2a343b;background:transparent;color:#8a99a5;font-size:12px;font-weight:600;cursor:pointer">Remove</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ noAdms }}" hint-placeholder-val="n">
+  <div style="text-align:center;padding:40px 20px;border:1px solid #212b32;border-radius:14px;background:#12181d">
+    <div style="font-size:15px;color:#9fb0bd;font-weight:600">No active admissions</div>
+    <div style="font-size:13px;color:#6f7f8b;margin-top:6px;line-height:1.5">Start a new admission when a preterm baby is arriving.<br>Everyone on the unit sees the same board.</div>
+  </div>
+  </sc-if>
+
+  <footer style="margin-top:28px;font-size:12px;color:#5f6f7b;line-height:1.55;text-align:center">
+    Shared board — checks sync to every device. Label by bed space only; no names/MRN.
+  </footer>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAdmission }}" hint-placeholder-val="ad">
+<div style="max-width:900px;margin:0 auto">
+  <div style="position:sticky;top:0;z-index:20;background:#0f1417;border-bottom:1px solid #212b32;padding:12px 16px 12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button onClick="{{ onBack }}" style="flex:none;padding:8px 12px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">‹ Beds</button>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:9px"><span style="font-size:17px;font-weight:800;color:#e6ecf0">{{ adm.room }}</span><span style="{{ syncBadgeStyle }}"><span style="{{ syncDotStyle }}"></span>{{ syncLabel }}</span></div>
+        <div style="font-size:12px;color:#7f8f9b">{{ adm.metaText }}</div>
+      </div>
+      <button onClick="{{ onOpenRoles }}" style="{{ rolesBtnStyle }}">{{ rolesBtnLabel }}</button>
+    </div>
+
+    <div style="display:flex;gap:16px;align-items:flex-start;margin-top:13px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column">
+        <span style="{{ adm.molBigStyle }}">{{ adm.molBirth }}<span style="font-size:15px;color:#7f8f9b;font-weight:700"> MOL</span></span>
+        <span style="font-size:12px;color:#7f8f9b;margin-top:5px;display:flex;align-items:center;gap:6px">since birth ·
+          <input type="time" value="{{ adm.birthTimeVal }}" onChange="{{ adm.onEditBirth }}" title="Adjust birth time" style="padding:3px 6px;border-radius:6px;border:1px solid #2c3740;background:#0f1417;color:#c4d0d9;font-size:12px;font-variant-numeric:tabular-nums">
+        </span>
+      </div>
+      <div style="width:1px;align-self:stretch;background:#2a343b"></div>
+      <sc-if value="{{ adm.admitOn }}" hint-placeholder-val="on">
+        <div style="display:flex;flex-direction:column">
+          <span style="{{ adm.arrStyle }}">{{ adm.sinceArrLabel }}</span>
+          <span style="font-size:12px;color:#7f8f9b;margin-top:5px;display:flex;align-items:center;gap:6px">since NICU arrival ·
+            <input type="time" value="{{ adm.admitTimeVal }}" onChange="{{ adm.onEditAdmit }}" title="Adjust NICU arrival time" style="padding:3px 6px;border-radius:6px;border:1px solid #2c3740;background:#0f1417;color:#c4d0d9;font-size:12px;font-variant-numeric:tabular-nums">
+          </span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ adm.admitOff }}" hint-placeholder-val="of">
+        <button onClick="{{ adm.onStartAdmit }}" style="display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:10px;border:1px solid #35525a;background:#10262b;color:#7fdbe6;font-size:14px;font-weight:800;cursor:pointer;align-self:center">
+          <span style="width:14px;height:14px;border-radius:50%;border:2px solid #7fdbe6;display:inline-flex;align-items:center;justify-content:center"><span style="width:6px;height:6px;border-radius:50%;background:#7fdbe6"></span></span>
+          Start · NICU arrival
+        </button>
+      </sc-if>
+      <div style="margin-left:auto;text-align:right">
+        <div style="font-size:30px;font-weight:800;line-height:1.05;color:#e6ecf0">{{ adm.bwBig }}</div>
+        <div style="font-size:17px;font-weight:700;color:#9fb0bd;margin-top:3px">{{ adm.gaBig }}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ adm.hasDepths }}" hint-placeholder-val="dep">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <sc-for list="{{ adm.depths }}" as="dp" hint-placeholder-count="3">
+        <span style="display:inline-flex;align-items:baseline;gap:6px;padding:6px 12px;border-radius:8px;background:#14212f;border:1px solid #213a52"><span style="font-size:11px;font-weight:800;letter-spacing:.05em;color:#7fb0d8">{{ dp.label }}</span><span style="font-size:15px;font-weight:800;color:#dce8f4;font-variant-numeric:tabular-nums">{{ dp.value }}</span></span>
+      </sc-for>
+    </div>
+    <div style="margin-top:8px;border:1px solid #2b3f34;border-radius:10px;background:#111d19;overflow:hidden">
+      <sc-for list="{{ adm.fluidRows }}" as="fr" hint-placeholder-count="2">
+        <div style="{{ fr.rowStyle }}">
+          <span style="flex:1;min-width:96px;font-size:13px;font-weight:800;color:#a8dcc2">{{ fr.drug }}</span>
+          <span style="flex:1;min-width:96px;font-size:12px;color:#8fa79a;font-weight:600">{{ fr.perKg }}</span>
+          <span style="font-size:17px;font-weight:800;color:#dcf4e8;font-variant-numeric:tabular-nums;white-space:nowrap">{{ fr.vol }}</span>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <div style="margin-top:13px;position:relative">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:4px"><span style="font-size:12px;font-weight:700;color:#8a99a5">{{ adm.pctLabel }} · {{ adm.pct }}%</span></div>
+      <div style="height:8px;border-radius:999px;background:#1c252c;overflow:hidden"><div style="{{ adm.barFillStyle }}"></div></div>
+      <div style="position:relative;height:16px;margin-top:4px">
+        <sc-for list="{{ adm.ticks }}" as="tk" hint-placeholder-count="4"><span style="{{ tk.style }}">{{ tk.label }}′</span></sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ adm.hasPast60 }}" hint-placeholder-val="p"><div style="margin-top:4px;font-size:12px;color:#e2685c;font-weight:700">{{ adm.past60 }}</div></sc-if>
+
+    <div style="display:flex;gap:6px;padding:4px;background:#12181d;border-radius:12px;border:1px solid #222c33;margin-top:14px">
+      <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="4"><button onClick="{{ tb.onClick }}" style="{{ tb.style }}">{{ tb.label }}</button></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:18px 16px 90px">
+
+    <sc-if value="{{ tabIsChecklist }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <sc-if value="{{ needsVitals }}" hint-placeholder-val="nv">
+        <div style="font-size:13px;color:#e0b070;background:#241f16;border:1px solid #4a3c22;border-radius:9px;padding:11px 13px;line-height:1.5">Enter gestational age and birth weight to unlock the GA/weight-specific items.</div>
+      </sc-if>
+      <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
+        <section style="display:flex;flex-direction:column;gap:11px">
+          <div style="{{ ph.headerStyle }}">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:15px;font-weight:800;color:#dce8f4">{{ ph.title }}</span>
+              <span style="font-size:12px;color:#8aa0b3">{{ ph.targetLabel }}</span>
+            </div>
+            <span style="{{ ph.statusStyle }}">{{ ph.statusLabel }} · {{ ph.countLabel }}</span>
+          </div>
+          <sc-if value="{{ ph.hasNote }}" hint-placeholder-val="note"><div style="font-size:13px;color:#e0b070;background:#241f16;border:1px solid #4a3c22;border-radius:8px;padding:8px 12px">⚠ {{ ph.note }}</div></sc-if>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ ph.items }}" as="it" hint-placeholder-count="3">
+              <div style="{{ it.rowStyle }}">
+                <sc-if value="{{ it.isToggle }}" hint-placeholder-val="{{ true }}"><button onClick="{{ it.onToggle }}" style="{{ it.boxStyle }}">{{ it.check }}</button></sc-if>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:7px">
+                  <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+                    <span style="{{ it.labelStyle }}">{{ it.label }}</span>
+                    <sc-if value="{{ it.hasTrigger }}" hint-placeholder-val="tg"><span style="{{ it.triggerStyle }}">{{ it.trigger }}</span></sc-if>
+                    <sc-if value="{{ it.hasFlag }}" hint-placeholder-val="f"><span style="{{ it.flagStyle }}">{{ it.flag }}</span></sc-if>
+                  </div>
+                  <sc-if value="{{ it.hasNote }}" hint-placeholder-val="nt"><div style="{{ it.noteStyle }}">{{ it.note }}</div></sc-if>
+                  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <sc-if value="{{ it.showSys }}" hint-placeholder-val="{{ true }}"><span style="{{ it.sysStyle }}">{{ it.sysLabel }}</span></sc-if>
+                    <span style="font-size:12px;color:#6f7f8b">{{ it.roleText }}</span>
+                    <sc-if value="{{ it.showTarget }}" hint-placeholder-val="t"><span style="{{ it.targetStyle }}">{{ it.targetLabel }}</span></sc-if>
+                  </div>
+                  <sc-if value="{{ it.hasBullets }}" hint-placeholder-val="bl">
+                    <div style="display:flex;flex-direction:column;gap:7px">
+                      <button onClick="{{ it.onExpand }}" style="align-self:flex-start;padding:5px 11px;border-radius:7px;border:1px solid #2c3740;background:transparent;color:#8fc7d4;font-size:12px;font-weight:700;cursor:pointer">{{ it.expandLabel }}</button>
+                      <sc-if value="{{ it.bulletsOpen }}" hint-placeholder-val="bo">
+                        <ul style="margin:0;padding-left:18px;color:#a7b6c1;font-size:13px;line-height:1.65"><sc-for list="{{ it.bullets }}" as="b" hint-placeholder-count="4"><li>{{ b }}</li></sc-for></ul>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isFio2 }}" hint-placeholder-val="fi">
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                      <input type="number" inputMode="numeric" value="{{ it.fio2Val }}" onChange="{{ it.onFio2 }}" placeholder="21" style="{{ it.fio2InputStyle }}">
+                      <span style="font-size:13px;font-weight:700;color:#8c99a4">% FiO₂</span>
+                      <span style="{{ it.fio2NoteStyle }}">{{ it.fio2Note }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ it.isChoice }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ it.options }}" as="opt" hint-placeholder-count="2"><button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.label }}</button></sc-for></div>
+                  </sc-if>
+                  <sc-if value="{{ it.showLog }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                      <sc-if value="{{ it.hasValue }}" hint-placeholder-val="v"><input type="number" inputMode="numeric" value="{{ it.valNum }}" onChange="{{ it.onValue }}" placeholder="mg/dL" style="width:96px;padding:8px 10px;border-radius:8px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px"></sc-if>
+                      <span style="font-size:12px;color:#8c99a4">logged at</span>
+                      <input type="time" value="{{ it.timeValue }}" onChange="{{ it.onEditTime }}" style="padding:7px 10px;border-radius:8px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px;font-variant-numeric:tabular-nums">
+                      <span style="{{ it.molStyle }}">{{ it.molLabel }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-for>
+
+      <section style="display:flex;flex-direction:column;gap:11px;border-top:1px solid #232d34;padding-top:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:15px;font-weight:800;color:#9fb0bd">After the golden hour</span>
+            <span style="font-size:12px;color:#6f7f8b">Not required for golden hour completion — check these off on the Ongoing tab.</span>
+          </div>
+          <button onClick="{{ onGotoGoals }}" style="padding:8px 13px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#8fc7d4;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Open Ongoing ›</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ ongoingPreview }}" as="og" hint-placeholder-count="6">
+            <div style="{{ og.rowStyle }}">
+              <span style="{{ og.dotStyle }}"></span>
+              <div style="flex:1;min-width:0;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+                <span style="{{ og.labelStyle }}">{{ og.label }}</span>
+                <sc-if value="{{ og.hasTrigger }}" hint-placeholder-val="tg"><span style="{{ og.triggerStyle }}">{{ og.trigger }}</span></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hrifExempt }}" hint-placeholder-val="he">
+          <div style="font-size:13px;color:#8a99a5;background:#161d22;border:1px solid #2a343b;border-radius:9px;padding:11px 13px;line-height:1.5">HRIF not obligatory — consider if other concerns arise.</div>
+        </sc-if>
+      </section>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabIsMeds }}" hint-placeholder-val="md">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;padding:14px 15px;border-radius:12px;border:1px solid #232d34;background:#12181d">
+        <div>
+          <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Dosing weight (g)</label>
+          <input type="number" inputMode="numeric" value="{{ meds.dosingBw }}" onChange="{{ meds.onDosingBw }}" placeholder="900" style="width:130px;padding:11px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-size:13px;font-weight:800;color:#dce8f4;font-variant-numeric:tabular-nums">{{ meds.kgLabel }}</span>
+          <span style="font-size:12px;color:#7f8f9b">{{ meds.bwNote }}</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <sc-if value="{{ meds.overridden }}" hint-placeholder-val="ov"><button onClick="{{ meds.onResetBw }}" style="padding:9px 13px;border-radius:9px;border:1px solid #2a343b;background:transparent;color:#9fb0bd;font-size:12px;font-weight:700;cursor:pointer">Reset to BW</button></sc-if>
+          <button onClick="{{ meds.onBig }}" style="{{ meds.bigBtnStyle }}">{{ meds.bigLabel }}</button>
+          <button onClick="{{ onPrint }}" style="padding:9px 13px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:12px;font-weight:700;cursor:pointer">Print</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ meds.noWeight }}" hint-placeholder-val="nw">
+        <div style="font-size:13px;color:#e0b070;background:#241f16;border:1px solid #4a3c22;border-radius:9px;padding:11px 13px;line-height:1.5">Enter a dosing weight to calculate doses.</div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ meds.list }}" as="m" hint-placeholder-count="9">
+          <div style="border:1px solid #232d34;border-radius:12px;background:#12181d;overflow:hidden">
+            <div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;padding:12px 15px;background:#14212f;border-bottom:1px solid #213a52">
+              <span style="{{ m.nameStyle }}">{{ m.name }}</span>
+              <span style="{{ m.concStyle }}">{{ m.conc }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ m.rows }}" as="r" hint-placeholder-count="1">
+                <div style="{{ r.rowStyle }}">
+                  <span style="{{ r.doseStyle }}">{{ r.dose }}</span>
+                  <span style="{{ r.amtStyle }}">{{ r.amount }}</span>
+                  <span style="{{ r.volStyle }}">{{ r.vol }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ m.showComment }}" hint-placeholder-val="cm">
+              <div style="{{ m.commentStyle }}">{{ m.comment }}</div>
+            </sc-if>
+            <sc-if value="{{ m.showToggle }}" hint-placeholder-val="ct">
+              <button onClick="{{ m.onExpand }}" style="width:100%;padding:9px;border:none;border-top:1px solid #232d34;background:transparent;color:#8fc7d4;font-size:12px;font-weight:700;cursor:pointer;text-align:left;padding-left:15px">{{ m.expandLabel }}</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="font-size:12px;color:#5f6f7b;line-height:1.55;padding-top:4px">Doses calculated from the dosing weight above. Verify every dose independently before administration.</div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabIsGoals }}" hint-placeholder-val="g">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:13px;color:#8a99a5;line-height:1.55">Context-specific care from the NICU care guidelines, driven by GA {{ adm.gaBig }} and BW {{ adm.bwBig }}. None of these block golden hour completion.</div>
+      <sc-if value="{{ hrifExempt }}" hint-placeholder-val="he2">
+        <div style="font-size:13px;color:#8a99a5;background:#161d22;border:1px solid #2a343b;border-radius:9px;padding:11px 13px;line-height:1.5">HRIF not obligatory — consider if other concerns arise.</div>
+      </sc-if>
+      <sc-for list="{{ ongoingGroups }}" as="gp" hint-placeholder-count="2">
+        <section style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7fb0d8">{{ gp.title }}</div>
+          <sc-for list="{{ gp.items }}" as="lg" hint-placeholder-count="5">
+            <div style="{{ lg.rowStyle }}">
+              <button onClick="{{ lg.onToggle }}" style="{{ lg.boxStyle }}">{{ lg.check }}</button>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap">
+                  <span style="{{ lg.labelStyle }}">{{ lg.label }}</span>
+                  <sc-if value="{{ lg.hasTrigger }}" hint-placeholder-val="tg"><span style="{{ lg.triggerStyle }}">{{ lg.trigger }}</span></sc-if>
+                </div>
+                <sc-if value="{{ lg.hasNote }}" hint-placeholder-val="nt"><div style="{{ lg.noteStyle }}">{{ lg.note }}</div></sc-if>
+                <sc-if value="{{ lg.hasBullets }}" hint-placeholder-val="bl">
+                  <div style="display:flex;flex-direction:column;gap:7px">
+                    <button onClick="{{ lg.onExpand }}" style="align-self:flex-start;padding:5px 11px;border-radius:7px;border:1px solid #2c3740;background:transparent;color:#8fc7d4;font-size:12px;font-weight:700;cursor:pointer">{{ lg.expandLabel }}</button>
+                    <sc-if value="{{ lg.bulletsOpen }}" hint-placeholder-val="bo"><ul style="margin:0;padding-left:18px;color:#a7b6c1;font-size:13px;line-height:1.65"><sc-for list="{{ lg.bullets }}" as="b" hint-placeholder-count="4"><li>{{ b }}</li></sc-for></ul></sc-if>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ lg.showSys }}" hint-placeholder-val="{{ true }}"><span style="{{ lg.sysStyle }}">{{ lg.sysLabel }}</span></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ tabIsDebrief }}" hint-placeholder-val="d">
+    <div style="display:flex;flex-direction:column;gap:26px">
+      <section style="display:flex;flex-direction:column;gap:14px">
+        <h3 style="margin:0;font-size:16px;font-weight:800;color:#e6ecf0">Rapid debrief</h3>
+        <sc-for list="{{ debriefItems }}" as="db" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:13px;font-weight:600;color:#b6c4cf">{{ db.label }}</span>
+            <sc-if value="{{ db.isText }}" hint-placeholder-val="tx"><textarea value="{{ db.value }}" onChange="{{ db.onChange }}" placeholder="Notes…" style="width:100%;min-height:74px;padding:11px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px;line-height:1.5;resize:vertical"></textarea></sc-if>
+            <sc-if value="{{ db.isChoice }}" hint-placeholder-val="ch"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ db.options }}" as="opt" hint-placeholder-count="2"><button onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.label }}</button></sc-for></div></sc-if>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="display:flex;flex-direction:column;gap:12px">
+        <h3 style="margin:0;font-size:16px;font-weight:800;color:#e6ecf0">Summary for reviewers</h3>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button onClick="{{ onCopy }}" style="padding:10px 16px;border-radius:9px;border:none;background:#3fb6c4;color:#04252a;font-size:14px;font-weight:800;cursor:pointer">{{ copyLabel }}</button>
+          <button onClick="{{ onPrint }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:14px;font-weight:700;cursor:pointer">Print / PDF</button>
+          <button onClick="{{ onEmail }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:#161d22;color:#c4d0d9;font-size:14px;font-weight:700;cursor:pointer">Email draft…</button>
+        </div>
+        <pre style="margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.55;color:#c4d0d9;background:#0c1114;border:1px solid #212b32;border-radius:10px;padding:16px;max-height:420px;overflow:auto">{{ summaryText }}</pre>
+      </section>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showSetup }}" hint-placeholder-val="s">
+<div style="position:fixed;inset:0;z-index:50;background:rgba(5,8,10,.66);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto">
+  <div style="width:min(500px,94vw);background:#161d22;border:1px solid #2a343b;border-radius:16px;padding:22px">
+    <h2 style="margin:0 0 4px;font-size:20px;font-weight:800">New admission</h2>
+    <p style="margin:0 0 18px;font-size:13px;color:#8a99a5;line-height:1.5">Enter weight &amp; GA first — they drive the line depths, drug doses and the GA-specific checklist items. Then hit Start at the moment of delivery.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;gap:12px">
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Birth weight (g)</label><input type="number" inputMode="numeric" value="{{ setup.bw }}" onChange="{{ onBw }}" placeholder="900" style="width:100%;padding:12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:19px;font-weight:700"></div>
+        <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Gestational age</label><input value="{{ setup.ga }}" onChange="{{ onGa }}" placeholder="27 or 27+3" style="width:100%;padding:12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:19px;font-weight:700"></div>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Delivery</label>
+        <button onClick="{{ onToggleBreech }}" style="{{ breechStyle }}"><span style="{{ breechBoxStyle }}">{{ breechCheck }}</span>Breech delivery — adds hip screening</button>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Bed space</label>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:7px"><sc-for list="{{ roomOptions }}" as="ro" hint-placeholder-count="10"><button onClick="{{ ro.onSelect }}" style="{{ ro.style }}">{{ ro.label }}</button></sc-for></div>
+      </div>
+      <div style="border-top:1px solid #232d34;padding-top:16px;display:flex;flex-direction:column;gap:12px">
+        <button onClick="{{ onCreateNow }}" style="{{ startNowStyle }}">▶ Baby delivered — start timers now</button>
+        <div style="display:flex;gap:12px;align-items:flex-end">
+          <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Or birth date</label><input type="date" value="{{ setup.birthDate }}" onChange="{{ onBirthDate }}" style="width:100%;padding:10px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px"></div>
+          <div style="flex:1"><label style="display:block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7f8f9b;margin-bottom:6px">Time</label><input type="time" value="{{ setup.birthTime }}" onChange="{{ onBirthTime }}" style="width:100%;padding:10px 12px;border-radius:9px;border:1px solid #2c3740;background:#0f1417;color:#e6ecf0;font-size:14px"></div>
+          <button onClick="{{ onCreateWithTime }}" style="{{ createStyle }}">Create with this time</button>
+        </div>
+        <div style="font-size:12px;color:#6f7f8b;line-height:1.5">Birth &amp; arrival times can be adjusted later from the admission header if entered late.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-start;margin-top:18px">
+      <button onClick="{{ onSetupCancel }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:transparent;color:#9fb0bd;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showRoles }}" hint-placeholder-val="r">
+<div style="position:fixed;inset:0;z-index:50;background:rgba(5,8,10,.66);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto">
+  <div style="width:min(560px,94vw);background:#161d22;border:1px solid #2a343b;border-radius:16px;padding:22px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <h2 style="margin:0;font-size:20px;font-weight:800">Roles &amp; prebrief</h2>
+      <button onClick="{{ onCloseRoles }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #2a343b;background:#0f1417;color:#c4d0d9;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div style="border:1px solid #35525a;border-radius:11px;padding:14px 15px;background:#10262b;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:800;color:#7fdbe6;margin-bottom:4px">I am (this device)</div>
+      <div style="font-size:12px;color:#8a99a5;margin-bottom:10px">Optional but encouraged — items you check will be attributed to this role in the log &amp; summary.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ myRoleOptions }}" as="mr" hint-placeholder-count="8"><button onClick="{{ mr.onSelect }}" style="{{ mr.style }}"><span style="{{ mr.radioStyle }}"></span>{{ mr.label }}</button></sc-for></div>
+    </div>
+    <p style="margin:0 0 16px;font-size:13px;color:#8a99a5">Golden hour starts at time of birth. MD prebriefs roles &amp; goals top-down: stable temp, sugar, ABX, fluids, isolette.</p>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <sc-for list="{{ roleRef }}" as="r" hint-placeholder-count="7">
+        <div style="border:1px solid #232d34;border-radius:11px;padding:13px 15px;background:#12181d">
+          <div style="font-size:14px;font-weight:800;color:#7fdbe6;margin-bottom:4px">{{ r.role }}</div>
+          <sc-if value="{{ r.hasDesc }}" hint-placeholder-val="de"><div style="font-size:13px;color:#c4d0d9;line-height:1.5">{{ r.desc }}</div></sc-if>
+          <sc-if value="{{ r.hasBullets }}" hint-placeholder-val="bu"><ul style="margin:8px 0 0;padding-left:18px;color:#a7b6c1;font-size:13px;line-height:1.6"><sc-for list="{{ r.bullets }}" as="b" hint-placeholder-count="2"><li>{{ b }}</li></sc-for></ul></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+<sc-if value="{{ isAdmission }}" hint-placeholder-val="pr">
+<div class="gh-print">
+  <sc-if value="{{ tabIsMeds }}" hint-placeholder-val="pm">
+    <div>
+      <h2 style="margin:0 0 2px;font-size:16px">Neonatal Drug Calculator — GHAPTT</h2>
+      <div style="font-size:11px;margin-bottom:8px">Bed {{ adm.room }} · dosing weight {{ meds.printWeight }}</div>
+      <table>
+        <thead><tr><th>Medication</th><th>Concentration</th><th>Dose/kg</th><th>Dose</th><th>Volume</th><th>Comments</th></tr></thead>
+        <tbody>
+          <sc-for list="{{ meds.printRows }}" as="pr" hint-placeholder-count="10">
+            <tr><td>{{ pr.name }}</td><td>{{ pr.conc }}</td><td>{{ pr.dose }}</td><td>{{ pr.amount }}</td><td>{{ pr.vol }}</td><td>{{ pr.comment }}</td></tr>
+          </sc-for>
+        </tbody>
+      </table>
+      <div style="font-size:10px;margin-top:8px">Verify every dose independently before administration.</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ printSummary }}" hint-placeholder-val="ps"><pre>{{ summaryText }}</pre></sc-if>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;goldenHourMinutes&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:60,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:30,&quot;max&quot;:120,&quot;step&quot;:5,&quot;unit&quot;:&quot;min&quot;,&quot;section&quot;:&quot;Behavior&quot;},&quot;showClinicalTags&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;use24hClock&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.ENDPOINT='/.netlify/functions/state';
+    this.SYS={thermo:{l:'Thermoreg',c:'#e0954e'},resp:{l:'Respiratory',c:'#4bafbd'},access:{l:'Access / Lines',c:'#d16b81'},fluid:{l:'Fluids / Nutrition',c:'#9b83d4'},abx:{l:'Infection / ABX',c:'#5bb98c'},admin:{l:'Admin',c:'#8c97a6'},screen:{l:'Screening',c:'#7fb0d8'},family:{l:'Family',c:'#c9a24a'}};
+    this.ROLES={MD:'MD',ARN:'Admit RN',NRN:'NRN',CRN:'Charge RN',PRN:'PRN',RT:'RT',UA:'UA',ANM:'ANM'};
+    this.MYROLES=['MD','Admit RN','NRN','Charge RN','PRN','RT','UA','ANM'];
+    this.RESP_MODES=['ETT / conv vent','HFOV','NAVA (NIPPV)','CPAP','HFNC','Low-flow NC','Room air'];
+    this.NEURO=['Maintain head in midline position.','Elevate head of bed.','Minimize ETT and Oral suctioning to only PRN.','Cluster Hands-On care to Q 6hr and PRN.','No need for manual BP if arterial line with good waveform in place.','Avoid elevating legs with diaper changes, handling.','No abdominal girth measurements.','Minimal stimulation, light, and noise.','No bath.','No HOLDING','May draw labs from UVC if no arterial line in place.','Avoid rapid flushes, boluses (over 30+min), transfusions (over 3-3.5hr).','Avoid rapid blood withdrawal: use Hummi system with PAL/UAC'];
+
+    this.PHASES=[
+      {id:'p10',target:10,title:'Complete by 10 MOL',items:[
+        {id:'neowrap',kind:'task',label:'Neowrap & portawarmer at delivery',sys:'thermo',roles:['ARN','NRN','RT'],when:c=>c.ga<32,trigger:'<32 wk'},
+        {id:'resp',kind:'choice',label:'Respiratory support',sys:'resp',roles:['RT'],options:this.RESP_MODES,dyn:c=>c.ga<32||c.bw<1500?{note:'CPAP for lung growth (<32 wk or <1500 g)'+(c.ga<30?' — CPAP until 32 wks minimum':' — consider stop at 32 wks')}:null},
+        {id:'temp',kind:'milestone',label:'1st vital signs — temp & time',sys:'thermo',roles:['ARN','RT'],target:10,critical:true},
+        {id:'rnteam',kind:'task',label:'RN team: weight, measurements, MRSA swab, OG tube',sys:'admin',roles:['ARN','NRN']},
+        {id:'mdorders',kind:'task',label:'MD: write orders & call pharmacy',sys:'admin',roles:['MD']},
+        {id:'tpnstart',kind:'task',label:'Starter TPN in MD orders — start at birth',sys:'fluid',roles:['MD'],when:c=>c.ga<34||c.bw<1500,trigger:'<34 wk or <1500 g'}
+      ]},
+      {id:'p20',target:20,title:'Complete by 20 MOL',items:[
+        {id:'movebed',kind:'task',label:'Move patient to bed',sys:'admin',roles:['ARN','NRN']},
+        {id:'preplines',kind:'task',label:'Prepare for lines (arms out for PIV PRN)',sys:'access',roles:['ARN','PRN']},
+        {id:'placelines',kind:'task',label:'MDs place lines / draw labs from UAC (if unable, draw from low-lying UVC)',sys:'access',roles:['MD'],dyn:c=>c.ga<30?{note:'Strongly encourage UAC / UVC attempt first — umbilical lines indicated <30 wk',alert:true}:((c.ga<33||c.bw<1500)?{note:'Consider umbilical lines'}:null)},
+        {id:'linesused',kind:'multi',label:'Lines in use',sys:'access',roles:['MD','ARN'],options:['UVC','UAC','PIV','PICC']},
+        {id:'linestart',kind:'milestone',label:'Lines start time',sys:'access',roles:['MD'],target:20},
+        {id:'labs',kind:'milestone',label:'Labs retrieval time',sys:'access',roles:['ARN'],target:20},
+        {id:'sugar',kind:'milestone',label:'1st blood sugar',sys:'fluid',roles:['ARN'],target:20,hasValue:true}
+      ]},
+      {id:'p40',target:40,title:'Complete by 40 MOL',note:'Plan B: insert rapid PIV if no lines in by 40 MOL',items:[
+        {id:'lineinsert',kind:'task',label:'MDs complete UAC / UVC insertion & give Amp (± start D10% via medline); PIV PRN',sys:'access',roles:['MD'],flag:'DO NOT WAIT FOR XRAY'},
+        {id:'callxray',kind:'task',label:'UA: call for Xray',sys:'admin',roles:['UA']},
+        {id:'reviewxray',kind:'task',label:'MDs review Xray & RNs adjust / secure lines',sys:'access',roles:['MD','ARN']},
+        {id:'attachfluids',kind:'task',label:'RN: attach fluids & start infusions / meds',sys:'fluid',roles:['ARN','PRN']},
+        {id:'amp',kind:'milestone',label:'Amp (ampicillin) given',sys:'abx',roles:['ARN'],target:40,critical:true},
+        {id:'vitk',kind:'milestone',label:'Vitamin K given',sys:'admin',roles:['ARN'],target:40,dyn:c=>({note:this.vitKDose(c)})},
+        {id:'caffeine',kind:'milestone',label:'Caffeine load given',sys:'resp',roles:['ARN'],target:40,when:c=>c.ga<30,trigger:'<30 wk',note:'Consider stop at 34 wks unless still on respiratory support. Maintenance 10 mg/kg/d as needed.'},
+        {id:'sutured',kind:'milestone',label:'Lines sutured time',sys:'access',roles:['MD'],target:40},
+        {id:'fluids',kind:'milestone',label:'Fluids start time',sys:'fluid',roles:['ARN'],target:40},
+        {id:'gent',kind:'milestone',label:'Gent (gentamicin) given',sys:'abx',roles:['ARN'],target:60,critical:true},
+        {id:'pivstart',kind:'milestone',label:'PIV start time',sys:'access',roles:['ARN'],target:40,dependsOn:{item:'linesused',includes:'PIV'}}
+      ]},
+      {id:'p60',target:60,title:'Complete by 60 MOL',items:[
+        {id:'humidity',kind:'task',label:'Humidity on',sys:'thermo',roles:['ARN'],target:60,when:c=>c.ga<33,trigger:'<33 wk'},
+        {id:'surfactant',kind:'task',label:'Surfactant — >30% O₂ → MIST, SALSA or ETT',sys:'resp',roles:['MD','RT'],consider:true,note:'Repeat Q12 hours ×3 doses.',surf:true},
+        {id:'hepb',kind:'task',label:'Hep B vaccine',sys:'admin',roles:['ARN'],consider:true,dyn:c=>c.bw>=2000?{trigger:'≥2000 g',note:'Give if consent signed. HBIG + Hep B vaccine at ALL weights if mom HBsAg positive.'}:{trigger:'<2000 g',note:'Only if mom HBsAg positive — then HBIG + Hep B vaccine regardless of weight.'}},
+        {id:'isolette',kind:'task',label:'RN: perform all additional tasks with isolette closed',sys:'thermo',roles:['ARN']},
+        {id:'incubator',kind:'milestone',label:'Incubator close time',sys:'thermo',roles:['ARN'],target:60,critical:true}
+      ]}
+    ];
+    this.PHASES.forEach(ph=>{
+      ph.items.push({id:'fio2_'+ph.id,kind:'fio2',label:'FiO₂ at '+ph.target+' MOL',sys:'resp',roles:['RT'],target:ph.target,consider:ph.target!==60});
+    });
+
+    this.ONGOING=[
+      {id:'og_hum',label:'Humidity',trigger:'<33 wk',sys:'thermo',when:c=>c.ga<33,note:'Also a 60 MOL golden hour item — keep running.'},
+      {id:'og_neuro',label:'Neuroprotection bundle — first 72 hrs of life',trigger:'<30 wk',sys:'admin',when:c=>c.ga<30,bullets:this.NEURO},
+      {id:'og_cpr',label:'CPR kit at bedside',trigger:'<34 wk',sys:'admin',when:c=>c.ga<34},
+      {id:'og_cpap',label:'CPAP until 32 wks minimum for lung growth',trigger:'<30 wk',sys:'resp',when:c=>c.ga<30},
+      {id:'og_cpap2',label:'Consider CPAP for lung growth — consider stop at 32 wks',trigger:'<32 wk or <1500 g',sys:'resp',consider:true,when:c=>c.ga>=30&&(c.ga<32||c.bw<1500)},
+      {id:'og_umb',label:'Consider umbilical lines',trigger:'<33 wk or <1500 g',sys:'access',consider:true,when:c=>c.ga>=30&&(c.ga<33||c.bw<1500)},
+      {id:'og_prolacta',label:'Prolacta — stop at 32 wks',trigger:'<30 wk',sys:'fluid',when:c=>c.ga<30},
+      {id:'og_dhm',label:'Donor human milk — stop at 34 wks CGA or DOL 8, whichever is LATER',sys:'fluid',when:()=>true,note:'All babies eligible; especially <32 wks or <1500 g BWt.'},
+      {id:'og_vita',label:'Vitamin A Q M/W/F ×12 doses (if indicated)',trigger:'<1500 g',sys:'fluid',when:c=>c.bw<1500},
+      {id:'og_pvs',label:'PVS — PVS if on Prolacta; TVS or PVS if on HMF',trigger:'<32 wk or <1500 g',sys:'fluid',when:c=>c.ga<32||c.bw<1500},
+      {id:'og_fe',label:'Iron — standard 3 mg/kg/d',sys:'fluid',when:()=>true,note:'6 mg/kg/d divided BID if on Epo; 2 mg/kg/d if on exclusive preterm formula.'},
+      {id:'og_epo',label:'Epo — consider if Hct <33 and ≥2 wks old',trigger:'<33 wk',sys:'fluid',consider:true,when:c=>c.ga<33},
+      {id:'og_hus',label:'HUS (head ultrasound) at 1 week and term corrected',trigger:'<32 wk or ≤1500 g',sys:'screen',when:c=>c.ga<32||c.bw<=1500},
+      {id:'og_rop',label:'ROP screen — add baby to the SLN ROP shared list with the Ophthalmologist',trigger:'≤30.0 wk or ≤1500 g',sys:'screen',when:c=>c.ga<=30||c.bw<=1500},
+      {id:'og_rop2',label:'Consider ROP screen if issues (cardioresp support, etc)',trigger:'1500–2000 g or >30 wk',sys:'screen',consider:true,when:c=>!(c.ga<=30||c.bw<=1500)&&c.bw<=2000},
+      {id:'og_tsh',label:'TFTs at 4 wks and 6 wks',trigger:'≤1500 g or <32 wk',sys:'screen',when:c=>c.bw<=1500||c.ga<32,note:'Do with NB screen as close to 48 hr; repeat at 2–3 wks and 6 wks if sick at 3 wks.'},
+      {id:'og_ptot',label:'Inpatient PT and OT',trigger:'<33 wk or ≤1500 g',sys:'screen',when:c=>c.ga<33||c.bw<=1500},
+      {id:'og_hrif',label:'eConsults: HRIF clinic, outpt PT, RD',trigger:'<32 wk or ≤1500 g',sys:'screen',when:c=>c.ga<32||c.bw<=1500},
+      {id:'og_video',label:'Video visit — HRIF clinic candidate',trigger:'<32 wk or ≤1500 g',sys:'family',when:c=>c.ga<32||c.bw<=1500},
+      {id:'og_rd',label:'eConsult: RD (if on HMF or issues)',trigger:'<34 wk',sys:'screen',consider:true,when:c=>c.ga<34&&!(c.ga<32||c.bw<=1500)},
+      {id:'og_hip',label:'Hip US at 46–48 wks CGA; hip Xray at ~6 mo',trigger:'breech',sys:'screen',when:c=>!!c.breech,note:'Low risk for CHD if breech delivery <32 wks at birth.'}
+    ];
+
+    this.MEDS=[
+      {name:'Adenosine',conc:'3 mg/ml · dilute to 0.3 mg/ml',rows:[
+        {dose:'0.05 mg/kg',perKg:0.05,unit:'mg',mlPerKg:0.05/0.3},
+        {dose:'0.1 mg/kg *',perKg:0.1,unit:'mg',mlPerKg:0.1/0.3},
+        {dose:'0.2 mg/kg',perKg:0.2,unit:'mg',mlPerKg:0.2/0.3}],
+        comment:'Bedside dilution (3 mg/mL): mix 1 mL with 9 mL NS to make final concentration of 0.3 mg/mL. Follow each dose with a rapid saline flush. Rapid IV push, may repeat every 2 minutes to max dose of 2.5 mg/kg. * Recommended start dose.'},
+      {name:'Atropine',conc:'0.1 mg/ml',rows:[{dose:'0.02 mg/kg/dose IV over 1 min',perKg:0.02,unit:'mg',mlPerKg:0.2}],
+        comment:'Dose can only be repeated once in 10–15 minutes for cumulative maximum dose of 0.04 mg/kg.'},
+      {name:'Calcium Chloride 10%',conc:'100 mg/ml',rows:[{dose:'20 mg/kg/dose',perKg:20,unit:'mg',mlPerKg:0.2}],
+        comment:'Rate should not exceed 1 ml/minute. Not for IM, SubQ, ET or intra-arterial route. Warm solution to body temperature if time permits. (0.2 ml/kg over 30–60 minutes)'},
+      {name:'Dextrose',conc:'D10W',rows:[{dose:'0.2 g/kg/dose · 2 ml/kg (IV)',perKg:0.2,unit:'g',mlPerKg:2}],
+        comment:'IV push over 5 minutes.'},
+      {name:'Epinephrine — ETT',conc:'0.1 mg/ml (1:10,000)',rows:[{dose:'0.1 mg/kg = 1 ml/kg',perKg:0.1,unit:'mg',mlPerKg:1}],
+        comment:'Give dose directly in the tube and give PPV breaths after dose to distribute the drug to the lungs.'},
+      {name:'Epinephrine — IV',conc:'0.1 mg/ml (1:10,000)',rows:[{dose:'0.02 mg/kg = 0.2 ml/kg',perKg:0.02,unit:'mg',mlPerKg:0.2}],
+        comment:'Rapid flush with 3 ml NS after dose given. Repeat every 3 to 5 minutes.'},
+      {name:'Lorazepam',conc:'2 mg/ml · dilute to 1 mg/ml',rows:[
+        {dose:'0.05 mg/kg',perKg:0.05,unit:'mg',mlPerKg:0.05},
+        {dose:'0.1 mg/kg',perKg:0.1,unit:'mg',mlPerKg:0.1}],
+        comment:'Must be diluted with an equal volume of NS; resultant concentration is 1 mg/ml. Do not give arterially — may cause arteriospasm and gangrene.'},
+      {name:'Naloxone',conc:'1 mg/ml',rows:[{dose:'0.1 mg/kg',perKg:0.1,unit:'mg',mlPerKg:0.1}],
+        comment:'May be given IM, IV, or ET.'},
+      {name:'Normal Saline',conc:'0.9% NaCl',rows:[{dose:'10 ml/kg',mlPerKg:10}],
+        comment:'Give over 5 to 10 minutes.'},
+      {name:'Defibrillation',electro:true,conc:'Electrotherapy',rows:[{dose:'Initial 2 J/kg/dose',jPerKg:2},{dose:'Subsequent 4 J/kg',jPerKg:4}],
+        comment:'Biphasic, doses higher than 4 J/kg can be given.'},
+      {name:'Cardioversion',electro:true,conc:'Electrotherapy',rows:[{dose:'Initial 0.5 J/kg/dose',jPerKg:0.5},{dose:'Initial 1.0 J/kg/dose',jPerKg:1},{dose:'Subsequent 2 J/kg',jPerKg:2}],
+        comment:'Turn Sync switch ON before cardioversion attempt. Turn Sync switch OFF for VF or any other shockable rhythm.'}
+    ];
+
+    this.DEBRIEF=[
+      {id:'delays',kind:'text',label:'Identify time delays & reason why'},
+      {id:'done60',kind:'choice',label:'All done by 60 MOL?',options:['Yes','No']},
+      {id:'done90',kind:'choice',label:'All done by 90 MOL?',options:['Yes','No']},
+      {id:'successful',kind:'choice',label:'Line successful',options:['UAC','UVC']},
+      {id:'tpn',kind:'choice',label:'TPN site',options:['UAC','UVC','PIV']},
+      {id:'surfactant',kind:'choice',label:'Surfactant given?',options:['Yes','No']}
+    ];
+    this.ROLE_REF=[
+      {role:'MD',desc:'Prebrief roles & goals with the team (stable temp, sugar, ABX, fluids, isolette) — top down.',bullets:['Plan B: insert rapid PIV if no lines in by 40 MOL']},
+      {role:'Admit RN / NRN / Charge RN',desc:'Hands-on care — help with line placement & assist in getting labs.',bullets:['NRN brings the timer to delivery & starts it at birth']},
+      {role:'PRN — before delivery',desc:'',bullets:['Set up & connect lines; drop UAC / UVC setup for MDs','Get heparin flush & sterile gloves / hat for MDs','Call pharmacy — heads up for UAC & UVC fluids']},
+      {role:'PRN — after delivery',desc:'',bullets:['Wait for fluids & prime the lines with each bag','Prepare amp sterilely & D10 infusion syringe','Runner for items']},
+      {role:'ANM',desc:'Family support & call out times on the timer to the team.',bullets:[]},
+      {role:'RT',desc:'Prepare CPAP or respiratory support; aid in getting a gas at admission.',bullets:[]},
+      {role:'UA',desc:'Admit patient into EPIC & call Xray.',bullets:[]}
+    ];
+    this.state={screen:'home',activeId:null,tab:'checklist',showSetup:false,showRoles:false,setup:this.blankSetup(),admissions:{},now:Date.now(),copied:false,mode:'checking',myRole:'',expanded:{},medBig:false,wide:typeof window!=='undefined'&&window.innerWidth>=820};
+  }
+  pad2(n){return String(n).padStart(2,'0');}
+  blankSetup(){const d=new Date();return{room:'',ga:'',bw:'',breech:false,birthDate:d.getFullYear()+'-'+this.pad2(d.getMonth()+1)+'-'+this.pad2(d.getDate()),birthTime:this.pad2(d.getHours())+':'+this.pad2(d.getMinutes())};}
+  componentDidMount(){
+    try{const raw=localStorage.getItem('ghaptt.v2');if(raw){const o=JSON.parse(raw);this.setState({admissions:o.admissions||{}});}}catch(e){}
+    try{this.setState({myRole:localStorage.getItem('ghaptt.myrole')||''});}catch(e){}
+    this._t=setInterval(()=>this.setState({now:Date.now()}),1000);
+    this._rz=()=>this.setState({wide:window.innerWidth>=820});
+    window.addEventListener('resize',this._rz);
+    try{this._bc=new BroadcastChannel('ghaptt-sync');this._bc.onmessage=ev=>{const inc=(ev.data&&ev.data.admissions)||{};this.setState(s=>{const merged=this.mergeAll(s.admissions,inc);if(merged===s.admissions)return{};this.persist(merged);return{admissions:merged};});};}catch(e){}
+    this.poll();
+  }
+  componentWillUnmount(){clearInterval(this._t);clearTimeout(this._c);clearTimeout(this._pt);clearTimeout(this._push);window.removeEventListener('resize',this._rz);if(this._bc)this._bc.close();}
+  persist(admissions){try{localStorage.setItem('ghaptt.v2',JSON.stringify({admissions}));}catch(e){}}
+  broadcast(admissions){try{this._bc&&this._bc.postMessage({admissions});}catch(e){}}
+  poll(){
+    fetch(this.ENDPOINT).then(r=>{if(!r.ok)throw 0;return r.json();}).then(doc=>{
+      this.setState(s=>{const merged=this.mergeAll(s.admissions,(doc&&doc.admissions)||{});const st={mode:'shared'};if(merged!==s.admissions){this.persist(merged);st.admissions=merged;}return st;});
+      this.schedulePoll(3000);
+    }).catch(()=>{this.setState({mode:'local'});this.schedulePoll(20000);});
+  }
+  schedulePoll(ms){clearTimeout(this._pt);this._pt=setTimeout(()=>this.poll(),ms);}
+  schedulePush(){clearTimeout(this._push);this._push=setTimeout(()=>{
+    if(this.state.mode!=='shared')return;
+    fetch(this.ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({admissions:this.state.admissions})}).then(r=>r.ok?r.json():null).then(doc=>{if(!doc)return;this.setState(s=>{const merged=this.mergeAll(s.admissions,doc.admissions||{});if(merged===s.admissions)return{};this.persist(merged);return{admissions:merged};});}).catch(()=>{});
+  },800);}
+  mergeAll(local,inc){let out=local,changed=false;for(const id of Object.keys(inc||{})){const b=inc[id];if(!b)continue;const a=out[id];if(!a){if(!changed){out={...local};changed=true;}out[id]=b;continue;}const m=this.mergeAdm(a,b);if(m!==a){if(!changed){out={...local};changed=true;}out[id]=m;}}return changed?out:local;}
+  mergeAdm(a,b){
+    const am=a.metaAt||0,bm=b.metaAt||0;let changed=bm>am;
+    const base=bm>am?{...a,...b}:{...a};
+    const mrg=(x,y)=>{const o={...(x||{})};for(const k of Object.keys(y||{})){const bv=y[k];if(!o[k]||(bv.at||0)>(o[k].at||0)){o[k]=bv;changed=true;}}return o;};
+    const data=mrg(a.data,b.data),debrief=mrg(a.debrief,b.debrief),lng=mrg(a.long,b.long);
+    if(!changed)return a;
+    base.data=data;base.debrief=debrief;base.long=lng;return base;
+  }
+  fmtClock(ms){if(ms==null||isNaN(ms))return '—';const d=new Date(ms);let h=d.getHours();const m=this.pad2(d.getMinutes());if(this.props.use24hClock??true)return this.pad2(h)+':'+m;const ap=h<12?'a':'p';h=h%12;if(h===0)h=12;return h+':'+m+ap;}
+  fmtDateTime(ms){if(ms==null)return '—';const d=new Date(ms);return this.pad2(d.getMonth()+1)+'/'+this.pad2(d.getDate())+' '+this.fmtClock(ms);}
+  fmtInput(ms){if(ms==null)return '';const d=new Date(ms);return this.pad2(d.getHours())+':'+this.pad2(d.getMinutes());}
+  molOf(adm,ms){return Math.max(0,Math.floor((ms-adm.birthMs)/60000));}
+  tColor(mins){return mins>=60?'#e2685c':mins>=50?'#e0a54e':null;}
+  hhmmToMs(hhmm,refMs,capNow){if(!hhmm)return null;const p=hhmm.split(':');const d=new Date(refMs);d.setHours(Number(p[0]),Number(p[1]),0,0);let t=d.getTime();if(capNow&&t>Date.now())t-=86400000;return t;}
+
+  parseGa(g){if(g==null||g==='')return null;const s=String(g).trim().replace(',','+');const m=s.match(/^(\d+(?:\.\d+)?)(?:\s*[+\/]\s*(\d))?/);if(!m)return null;const wk=parseFloat(m[1]);if(isNaN(wk))return null;return m[2]?wk+Number(m[2])/7:wk;}
+  ctxOf(adm){const ga=this.parseGa(adm.ga),bw=parseFloat(adm.bw);return{ga:ga==null?999:ga,bw:(!bw||isNaN(bw))?99999:bw,breech:!!adm.breech,known:ga!=null&&!!bw&&!isNaN(bw)};}
+  vitKDose(c){if(c.bw<1000)return 'Vit K 0.3 mg (<1000 g)';if(c.bw<1500)return 'Vit K 0.5 mg (1000–1499 g)';if(c.bw<99999)return 'Vit K 1 mg (≥1500 g)';return 'Dose by weight: <1000 g → 0.3 mg · 1000–1499 g → 0.5 mg · ≥1500 g → 1 mg';}
+  respMode(adm){return (adm.data.resp||{}).value||'';}
+  fio2Of(adm,phId){if(this.respMode(adm)==='Room air')return 21;const dd=adm.data['fio2_'+phId]||{};const v=parseFloat(dd.val);return isNaN(v)?null:v;}
+  hrifQualifies(c){return c.ga<32||c.bw<=1500;}
+
+  relevant(adm,it){
+    if(it.when&&!it.when(this.ctxOf(adm)))return false;
+    if(!it.dependsOn)return true;
+    const dd=adm.data[it.dependsOn.item]||{};
+    if(it.dependsOn.includes!=null)return Array.isArray(dd.vals)&&dd.vals.indexOf(it.dependsOn.includes)>=0;
+    return dd.value===it.dependsOn.val;
+  }
+  isDone(adm,it){
+    const dd=adm.data[it.id]||{};
+    if(it.kind==='fio2')return this.fio2Of(adm,it.id.slice(5))!=null;
+    if(it.kind==='choice')return dd.value!=null&&dd.value!=='';
+    if(it.kind==='multi')return Array.isArray(dd.vals)&&dd.vals.length>0;
+    return !!dd.done;
+  }
+  counts(adm){let d=0,t=0;this.PHASES.forEach(ph=>ph.items.forEach(it=>{if(it.consider)return;if(!this.relevant(adm,it))return;t++;if(this.isDone(adm,it))d++;}));return{d,t,pct:t?Math.round(d/t*100):0};}
+  phaseCounts(adm,ph){let d=0,t=0;ph.items.forEach(it=>{if(it.consider)return;if(!this.relevant(adm,it))return;t++;if(this.isDone(adm,it))d++;});return{d,t};}
+  anyOverdue(adm,nowMol){let o=false;this.PHASES.forEach(ph=>ph.items.forEach(it=>{if(it.consider)return;if(!this.relevant(adm,it))return;if(it.target!=null&&!this.isDone(adm,it)&&nowMol>it.target)o=true;}));return o;}
+  liveAdms(admissions){return Object.values(admissions||{}).filter(a=>a&&!a.deleted).sort((x,y)=>(y.createdAt||0)-(x.createdAt||0));}
+  ongoingFor(adm){const c=this.ctxOf(adm);return this.ONGOING.filter(g=>g.when(c));}
+
+  mutate(admId,fn){this.setState(s=>{const src=s.admissions[admId];if(!src)return{};const adm={...src,data:{...src.data},debrief:{...src.debrief},long:{...src.long}};fn(adm);const admissions={...s.admissions,[admId]:adm};this.persist(admissions);this.broadcast(admissions);this.schedulePush();return{admissions};});}
+  stamp(cur){cur.at=Date.now();if(this.state.myRole)cur.role=this.state.myRole;return cur;}
+  toggleItem(admId,id){this.mutate(admId,adm=>{const cur={...(adm.data[id]||{})};if(cur.done){cur.done=false;cur.atMs=null;cur.val=undefined;}else{cur.done=true;cur.atMs=Date.now();}adm.data[id]=this.stamp(cur);});}
+  editTime(admId,id,hhmm){if(!hhmm)return;this.mutate(admId,adm=>{let t=this.hhmmToMs(hhmm,adm.birthMs,false);if(t<adm.birthMs)t+=86400000;const cur={...(adm.data[id]||{})};cur.done=true;cur.atMs=t;adm.data[id]=this.stamp(cur);});}
+  setChoice(admId,id,val){this.mutate(admId,adm=>{const cur={...(adm.data[id]||{})};cur.value=cur.value===val?null:val;adm.data[id]=this.stamp(cur);});}
+  toggleMulti(admId,id,val){this.mutate(admId,adm=>{const cur={...(adm.data[id]||{})};const vals=(cur.vals||[]).slice();const i=vals.indexOf(val);if(i>=0)vals.splice(i,1);else vals.push(val);cur.vals=vals;adm.data[id]=this.stamp(cur);});}
+  setValue(admId,id,val){this.mutate(admId,adm=>{const cur={...(adm.data[id]||{})};cur.val=val;if(val!==''&&val!=null){cur.done=true;if(cur.atMs==null)cur.atMs=Date.now();}adm.data[id]=this.stamp(cur);});}
+  setFio2(admId,id,val){this.mutate(admId,adm=>{const cur={...(adm.data[id]||{})};cur.val=val;if(val!==''&&cur.atMs==null)cur.atMs=Date.now();adm.data[id]=this.stamp(cur);});}
+  setDosingBw(admId,val){this.setMeta(admId,adm=>{adm.dosingBw=val;});}
+  setDebrief(admId,id,val){this.mutate(admId,adm=>{adm.debrief[id]={v:val,at:Date.now()};});}
+  toggleLong(admId,id){this.mutate(admId,adm=>{const cur=adm.long[id]||{};adm.long[id]={done:!cur.done,at:Date.now(),role:this.state.myRole||undefined};});}
+  setMeta(admId,fn){this.mutate(admId,adm=>{fn(adm);adm.metaAt=Date.now();});}
+  editBirth(admId,hhmm){const t=this.hhmmToMs(hhmm,this.state.admissions[admId].birthMs,true);if(t==null)return;this.setMeta(admId,adm=>{adm.birthMs=t;});}
+  startAdmit(admId){this.setMeta(admId,adm=>{adm.admitMs=Date.now();});}
+  editAdmit(admId,hhmm){const t=this.hhmmToMs(hhmm,Date.now(),true);if(t==null)return;this.setMeta(admId,adm=>{adm.admitMs=t;});}
+  toggleExpand(k){this.setState(s=>({expanded:{...s.expanded,[k]:!s.expanded[k]}}));}
+
+  setSetup(k,v){this.setState(s=>({setup:{...s.setup,[k]:v}}));}
+  setGa(v){this.setSetup('ga',v);}
+  setMyRole(r){const v=this.state.myRole===r?'':r;this.setState({myRole:v});try{localStorage.setItem('ghaptt.myrole',v);}catch(e){}}
+  createAdmission(useNow){const s=this.state,su=s.setup;if(!su.room)return;const birthMs=useNow?Date.now():new Date(su.birthDate+'T'+su.birthTime).getTime();if(isNaN(birthMs))return;const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const adm={id,room:su.room,ga:su.ga,bw:su.bw,dosingBw:'',breech:!!su.breech,birthMs,admitMs:null,metaAt:Date.now(),createdAt:Date.now(),data:{},debrief:{},long:{}};const admissions={...s.admissions,[id]:adm};this.persist(admissions);this.broadcast(admissions);this.schedulePush();this.setState({admissions,screen:'admission',activeId:id,tab:'checklist',showSetup:false,setup:this.blankSetup()});}
+  deleteAdmission(id){const a=this.state.admissions[id];if(!confirm('Remove admission for '+((a&&a.room)||'this bed')+'? This removes it for ALL devices.'))return;this.setMeta(id,adm=>{adm.deleted=true;});this.setState(s=>s.activeId===id?{screen:'home',activeId:null}:{});}
+  openAdm(id){this.setState({screen:'admission',activeId:id,tab:'checklist'});}
+  setTab(t){this.setState({tab:t,copied:false});}
+  doCopy(text){try{navigator.clipboard.writeText(text).then(()=>{this.setState({copied:true});clearTimeout(this._c);this._c=setTimeout(()=>this.setState({copied:false}),2000);});}catch(e){}}
+  doEmail(room,text){const subj='GHAPTT — '+(room||'')+' Golden Hour summary';window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(text);}
+  optStyle(sel){return{padding:'8px 14px',borderRadius:'8px',border:'1px solid '+(sel?'#3fb6c4':'#2c3740'),background:sel?'#12333a':'transparent',color:sel?'#8fe0ec':'#c4d0d9',fontSize:'14px',fontWeight:700,cursor:'pointer'};}
+  triggerStyle(){return{fontSize:'10px',fontWeight:800,letterSpacing:'.04em',color:'#e0b070',background:'#241f16',border:'1px solid #4a3c22',padding:'2px 8px',borderRadius:'6px',whiteSpace:'nowrap'};}
+  noteStyle(alert){return{fontSize:'13px',lineHeight:'1.5',color:alert?'#f0c9a2':'#a7b6c1',background:alert?'#2a1e14':'#141b20',border:'1px solid '+(alert?'#5c4222':'#232d34'),borderRadius:'8px',padding:'8px 11px'};}
+
+  itemVM(adm,it,nowMol){
+    const dd=adm.data[it.id]||{};
+    const ctx=this.ctxOf(adm);
+    const dyn=it.dyn?(it.dyn(ctx)||{}):{};
+    const isChoice=it.kind==='choice'||it.kind==='multi';
+    const isFio2=it.kind==='fio2';
+    const done=this.isDone(adm,it);
+    const overdue=!it.consider&&it.target!=null&&!done&&nowMol>it.target;
+    const fio2Pending=isFio2&&!done&&nowMol>=it.target;
+    const sys=this.SYS[it.sys]||this.SYS.admin;
+    const showTags=this.props.showClinicalTags??true;
+    const surfHot=!!it.surf&&(this.fio2Of(adm,'p60')||0)>30;
+    const accent=done?'#4bbf87':(surfHot?'#e2685c':(overdue||fio2Pending)?(it.critical?'#e2685c':'#e0a54e'):(it.consider?'#5f6f7b':sys.c));
+    const rowStyle={display:'flex',gap:'12px',alignItems:'flex-start',padding:'13px 14px',borderRadius:'11px',border:'1px solid '+((overdue||surfHot)?'#4a2f2f':'#232d34'),borderLeft:'4px solid '+accent,background:done?'#111c19':((overdue||surfHot)?'#211719':(it.consider?'#131a1e':'#161d22'))};
+    if(overdue&&it.critical)rowStyle.animation='ghpulse 2s ease-in-out infinite';
+    else if(fio2Pending||surfHot)rowStyle.animation=(surfHot?'ghpulse':'ghpulsea')+' 2s ease-in-out infinite';
+    let options=[];
+    if(it.kind==='choice')options=it.options.map(o=>({label:o,onSelect:()=>this.setChoice(adm.id,it.id,o),style:this.optStyle(dd.value===o)}));
+    if(it.kind==='multi')options=it.options.map(o=>{const sel=Array.isArray(dd.vals)&&dd.vals.indexOf(o)>=0;return{label:o,onSelect:()=>this.toggleMulti(adm.id,it.id,o),style:this.optStyle(sel)};});
+    const note=dyn.note||it.note||'';
+    const trigger=dyn.trigger||it.trigger||(it.consider?'optional':'');
+    const bullets=it.bullets||[];
+    const open=!!this.state.expanded[it.id];
+    const ra=isFio2&&this.respMode(adm)==='Room air';
+    const f2=isFio2?this.fio2Of(adm,it.id.slice(5)):null;
+    let flag=it.flag||'';
+    if(surfHot)flag='FiO₂ '+this.fio2Of(adm,'p60')+'% at 60 MOL';
+    return{
+      rowStyle,isChoice,isFio2,isToggle:!isChoice&&!isFio2,showLog:(!isChoice&&!isFio2&&done),hasValue:!!it.hasValue,
+      label:it.label,labelStyle:{fontSize:'15px',lineHeight:'1.35',fontWeight:600,color:done?'#93b0a6':(it.consider?'#c0ccd5':'#e6ecf0')},
+      flag,hasFlag:!!flag,flagStyle:{fontSize:'10px',fontWeight:800,letterSpacing:'.04em',color:'#0f1417',background:'#e2685c',padding:'3px 8px',borderRadius:'6px'},
+      hasTrigger:!!trigger,trigger,triggerStyle:this.triggerStyle(),
+      hasNote:!!note,note,noteStyle:this.noteStyle(!!dyn.alert||surfHot),
+      hasBullets:bullets.length>0,bullets,bulletsOpen:open,expandLabel:open?'Hide details':'Show details',onExpand:()=>this.toggleExpand(it.id),
+      showSys:showTags,sysLabel:sys.l,sysStyle:{fontSize:'11px',fontWeight:700,letterSpacing:'.03em',textTransform:'uppercase',color:sys.c},
+      roleText:it.roles.map(r=>this.ROLES[r]).join(' · '),
+      showTarget:it.target!=null&&!it.consider,targetLabel:overdue?('overdue · target '+it.target+' MOL'):('target '+it.target+' MOL'),
+      targetStyle:{fontSize:'11px',fontWeight:700,padding:'2px 9px',borderRadius:'999px',color:overdue?'#f0b6ae':'#7f8f9b',background:overdue?'#3a2020':'#1b232a',border:'1px solid '+(overdue?'#5a2f2f':'#28323a'),whiteSpace:'nowrap'},
+      check:done?'✓':'',onToggle:()=>this.toggleItem(adm.id,it.id),
+      boxStyle:{width:'30px',height:'30px',flex:'none',borderRadius:'8px',border:'2px solid '+(done?'#4bbf87':overdue?'#e0a54e':'#3a454d'),background:done?'#4bbf87':'transparent',color:'#0f1417',fontSize:'17px',fontWeight:800,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:'1px'},
+      fio2Val:ra?'21':(dd.val!=null?dd.val:''),onFio2:e=>this.setFio2(adm.id,it.id,e.target.value),
+      fio2InputStyle:{width:'92px',padding:'9px 11px',borderRadius:'8px',border:'1px solid '+(fio2Pending?'#6a4f24':'#2c3740'),background:'#0f1417',color:'#e6ecf0',fontSize:'17px',fontWeight:800,fontVariantNumeric:'tabular-nums'},
+      fio2Note:ra?'auto — room air':(f2==null?(fio2Pending?'not entered':'awaiting '+it.target+' MOL'):(f2>30?'>30% — consider surfactant':'logged')),
+      fio2NoteStyle:{fontSize:'12px',fontWeight:700,color:ra?'#7f8f9b':(f2!=null&&f2>30?'#f0a89f':(fio2Pending?'#e0b070':'#7f8f9b'))},
+      timeValue:dd.atMs!=null?this.fmtInput(dd.atMs):'',onEditTime:e=>this.editTime(adm.id,it.id,e.target.value),
+      molLabel:(done&&dd.atMs!=null)?(this.molOf(adm,dd.atMs)+' MOL'+(dd.role?' · '+dd.role:'')):'',
+      molStyle:{fontSize:'13px',fontWeight:800,color:'#4bbf87',fontVariantNumeric:'tabular-nums'},
+      valNum:dd.val!=null?dd.val:'',onValue:e=>this.setValue(adm.id,it.id,e.target.value),
+      options
+    };
+  }
+
+  depths(adm){const g=parseFloat(adm.bw);if(!g||g<=0)return null;const kg=g/1000;return[{label:'ETT',value:(kg+6).toFixed(1)+' cm'},{label:'UVC',value:((kg*3+10)/2).toFixed(1)+' cm'},{label:'UAC',value:(kg*3+9).toFixed(1)+' cm'}];}
+  dosingKg(adm){const o=parseFloat(adm.dosingBw),b=parseFloat(adm.bw);const g=(!isNaN(o)&&o>0)?o:b;return(!g||isNaN(g))?null:g/1000;}
+  fluidRows(adm){const kg=this.dosingKg(adm);if(!kg)return[];const mk=(drug,perKg,vol,i)=>({drug,perKg,vol,rowStyle:{display:'flex',gap:'12px',alignItems:'baseline',padding:'9px 13px',flexWrap:'wrap',borderTop:i?'1px solid #1e2d26':'none'}});
+    return[mk('Normal Saline','10 mL/kg',(10*kg).toFixed(1)+' mL',0),mk('Dextrose 10%','2 mL/kg · 0.2 g/kg',(2*kg).toFixed(1)+' mL · '+(0.2*kg).toFixed(2)+' g',1)];}
+
+  buildSummary(adm,nowMol){
+    const L=[];const ctx=this.ctxOf(adm);
+    L.push('GOLDEN HOUR ADMISSION SUMMARY — GHAPTT');
+    L.push('Bed '+(adm.room||'—')+'   |   GA '+(adm.ga?adm.ga+' wk':'—')+'   |   BW '+(adm.bw?adm.bw+' g':'—')+(adm.breech?'   |   breech':''));
+    const dp=this.depths(adm);
+    if(dp)L.push('Calculated depths: '+dp.map(d=>d.label+' '+d.value).join('  ·  '));
+    const fr=this.fluidRows(adm);
+    if(fr.length)L.push('Bolus volumes: '+fr.map(f=>f.drug+' '+f.perKg+' → '+f.vol).join('  ·  '));
+    L.push('Birth: '+this.fmtDateTime(adm.birthMs)+'   |   NICU arrival: '+(adm.admitMs!=null?this.fmtClock(adm.admitMs)+' ('+this.molOf(adm,adm.admitMs)+' MOL)':'not started'));
+    L.push('Elapsed at export: '+nowMol+' MOL');
+    const c=this.counts(adm);
+    L.push('Completion: '+c.d+'/'+c.t+' required items ('+c.pct+'%)');
+    L.push('FiO₂: '+this.PHASES.map(ph=>{const v=this.fio2Of(adm,ph.id);return ph.target+"' "+(v==null?'—':v+'%');}).join('  ·  '));
+    const missed=[];
+    this.PHASES.forEach(ph=>{
+      L.push('');L.push('— '+ph.title+' —');
+      ph.items.forEach(it=>{if(!this.relevant(adm,it))return;const dd=adm.data[it.id]||{};const by=dd.role?(' ('+dd.role+')'):'';const opt=it.consider?' [optional]':'';
+        if(it.kind==='fio2'){const v=this.fio2Of(adm,ph.id);L.push('  '+(v!=null?'[x]':'[ ]')+' FiO₂ at '+ph.target+' MOL: '+(v!=null?v+'%':'(not entered)')+opt);if(v==null&&!it.consider)missed.push('FiO₂ at '+ph.target+' MOL');}
+        else if(it.kind==='choice'){L.push('  • '+it.label+': '+(dd.value||'(not set)')+(dd.value?by:'')+opt);if(!dd.value&&!it.consider)missed.push(it.label);}
+        else if(it.kind==='multi'){const v=(dd.vals||[]).join(', ');L.push('  • '+it.label+': '+(v||'(none selected)')+(v?by:'')+opt);if(!v&&!it.consider)missed.push(it.label);}
+        else{const done=!!dd.done;const v=(it.hasValue&&dd.val)?(' ['+dd.val+' mg/dL]'):'';const when=(done&&dd.atMs!=null)?(this.molOf(adm,dd.atMs)+' MOL @ '+this.fmtClock(dd.atMs)):'(not recorded)';L.push('  '+(done?'[x]':'[ ]')+' '+it.label+v+' — '+when+(done?by:'')+opt);if(!done&&!it.consider)missed.push(it.label+(it.target!=null?(' (target '+it.target+' MOL)'):''));}
+      });
+    });
+    L.push('');L.push('INCOMPLETE / MISSED ('+missed.length+'):');
+    if(missed.length)missed.forEach(m=>L.push('  - '+m));else L.push('  none — all required items complete');
+    L.push('');L.push('RAPID DEBRIEF:');
+    this.DEBRIEF.forEach(d=>{const e=(adm.debrief||{})[d.id];L.push('  • '+d.label+': '+((e&&e.v)||'(blank)'));});
+    const og=this.ongoingFor(adm);
+    if(og.length){
+      L.push('');L.push('ONGOING / AFTER THE GOLDEN HOUR (GA & weight specific):');
+      og.forEach(g=>{const e=(adm.long||{})[g.id];const done=!!(e&&e.done);L.push('  '+(done?'[x]':'[ ]')+' '+g.label+(g.trigger?'  ['+g.trigger+']':'')+(g.consider?' (consider)':''));});
+    }
+    if(!this.hrifQualifies(ctx))L.push('  HRIF not obligatory — consider if other concerns arise.');
+    L.push('');L.push('Generated by GHAPTT · times are minutes of life (MOL) from birth.');
+    return L.join('\n');
+  }
+
+  medVMs(adm){
+    const s=this.state;const kg=this.dosingKg(adm);const B=s.medBig?1.32:1;
+    const px=n=>Math.round(n*B)+'px';
+    const list=this.MEDS.map(m=>{
+      const open=!!s.expanded['med_'+m.name];
+      const rows=m.rows.map((r,i)=>{
+        let amount='—',vol='—';
+        if(kg){
+          if(r.jPerKg!=null){amount=(r.jPerKg*kg).toFixed(1)+' J';vol='';}
+          else{
+            if(r.perKg!=null)amount=(r.perKg*kg).toFixed(2)+' '+r.unit;
+            if(r.mlPerKg!=null)vol=(r.mlPerKg*kg).toFixed(2)+' ml';
+          }
+        } else {amount=r.jPerKg!=null?'— J':(r.perKg!=null?'—':'');vol=r.mlPerKg!=null?'— ml':'';}
+        return{dose:r.dose,amount,vol,
+          rowStyle:{display:'flex',gap:'12px',alignItems:'baseline',flexWrap:'wrap',padding:px(11)+' 15px',borderTop:i?'1px solid #1c242a':'none'},
+          doseStyle:{flex:'1 1 190px',minWidth:'150px',fontSize:px(13),fontWeight:700,color:'#c4d0d9'},
+          amtStyle:{minWidth:'92px',fontSize:px(19),fontWeight:800,color:'#f0a89f',fontVariantNumeric:'tabular-nums'},
+          volStyle:{minWidth:'92px',fontSize:px(19),fontWeight:800,color:'#7fdbe6',fontVariantNumeric:'tabular-nums'}};
+      });
+      return{name:m.name,conc:m.conc,rows,comment:m.comment,
+        nameStyle:{fontSize:px(16),fontWeight:800,color:m.electro?'#d8a8d0':'#dce8f4'},
+        concStyle:{fontSize:px(12),fontWeight:600,color:'#8aa0b3'},
+        showComment:s.wide||open,showToggle:!s.wide,
+        expandLabel:open?'Hide comments':'Comments',onExpand:()=>this.toggleExpand('med_'+m.name),
+        commentStyle:{padding:'11px 15px',borderTop:'1px solid #232d34',background:'#101619',fontSize:px(12.5),lineHeight:'1.55',color:'#a7b6c1'}};
+    });
+    const printRows=[];
+    this.MEDS.forEach(m=>m.rows.forEach((r,i)=>{
+      let amount='',vol='';
+      if(kg){if(r.jPerKg!=null){amount=(r.jPerKg*kg).toFixed(1)+' J';}else{if(r.perKg!=null)amount=(r.perKg*kg).toFixed(2)+' '+r.unit;if(r.mlPerKg!=null)vol=(r.mlPerKg*kg).toFixed(2)+' ml';}}
+      printRows.push({name:i===0?m.name:'',conc:i===0?m.conc:'',dose:r.dose,amount,vol,comment:i===0?m.comment:''});
+    }));
+    const ov=parseFloat(adm.dosingBw);const bwn=parseFloat(adm.bw);
+    return{list,printRows,
+      dosingBw:adm.dosingBw!=null&&adm.dosingBw!==''?adm.dosingBw:(adm.bw||''),
+      onDosingBw:e=>this.setDosingBw(adm.id,e.target.value),
+      onResetBw:()=>this.setDosingBw(adm.id,''),
+      overridden:!isNaN(ov)&&ov>0&&ov!==bwn,
+      kgLabel:kg?kg.toFixed(3)+' kg':'— kg',
+      bwNote:(!isNaN(ov)&&ov>0&&ov!==bwn)?('overriding birth weight '+(adm.bw||'—')+' g'):'birth weight',
+      printWeight:kg?(kg*1000)+' g ('+kg.toFixed(3)+' kg)':'not set',
+      noWeight:!kg,
+      bigLabel:s.medBig?'Normal text':'Large text',
+      bigBtnStyle:{padding:'9px 13px',borderRadius:'9px',border:'1px solid '+(s.medBig?'#3fb6c4':'#2a343b'),background:s.medBig?'#12333a':'#161d22',color:s.medBig?'#8fe0ec':'#c4d0d9',fontSize:'12px',fontWeight:700,cursor:'pointer'},
+      onBig:()=>this.setState(st=>({medBig:!st.medBig}))};
+  }
+
+  renderVals(){
+    const s=this.state,now=s.now;
+    const GH=this.props.goldenHourMinutes??60;
+    const live=this.liveAdms(s.admissions);
+    const modeMap={shared:{l:'Shared · live',c:'#4bbf87'},local:{l:'This device only',c:'#8c97a6'},checking:{l:'Connecting…',c:'#e0a54e'}};
+    const mm2=modeMap[s.mode]||modeMap.checking;
+    const base={
+      isHome:s.screen==='home',isAdmission:false,
+      showSetup:s.showSetup,showRoles:s.showRoles,
+      syncLabel:mm2.l,syncDotStyle:{width:'7px',height:'7px',borderRadius:'50%',background:mm2.c,display:'inline-block'},
+      syncBadgeStyle:{display:'inline-flex',alignItems:'center',gap:'6px',padding:'3px 9px',borderRadius:'999px',border:'1px solid #28323a',background:'#12181d',fontSize:'11px',fontWeight:700,color:'#9fb0bd',whiteSpace:'nowrap'},
+      rolesBtnLabel:s.myRole?('Role: '+s.myRole):'Roles & prebrief',
+      rolesBtnStyle:{flex:'none',padding:'9px 14px',borderRadius:'9px',border:'1px solid '+(s.myRole?'#2a343b':'#4a3c22'),background:'#161d22',color:s.myRole?'#7fdbe6':'#e0b070',fontSize:'13px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'},
+      onNew:()=>this.setState({showSetup:true,setup:this.blankSetup()}),
+      onOpenRoles:()=>this.setState({showRoles:true}),onCloseRoles:()=>this.setState({showRoles:false}),
+      onBack:()=>this.setState({screen:'home'}),
+      onGotoGoals:()=>this.setTab('goals'),
+      roleRef:this.ROLE_REF.map(r=>({role:r.role,desc:r.desc,hasDesc:!!r.desc,bullets:r.bullets,hasBullets:r.bullets.length>0})),
+      myRoleOptions:this.MYROLES.map(r=>{const sel=s.myRole===r;return{label:r,onSelect:()=>this.setMyRole(r),style:{display:'inline-flex',alignItems:'center',gap:'7px',padding:'8px 13px',borderRadius:'999px',border:'1px solid '+(sel?'#3fb6c4':'#2c3740'),background:sel?'#12333a':'transparent',color:sel?'#8fe0ec':'#c4d0d9',fontSize:'13px',fontWeight:700,cursor:'pointer'},radioStyle:{width:'12px',height:'12px',borderRadius:'50%',border:'2px solid '+(sel?'#8fe0ec':'#5a6772'),background:sel?'#8fe0ec':'transparent',display:'inline-block'}};}),
+      setup:s.setup,onBw:e=>this.setSetup('bw',e.target.value),onGa:e=>this.setGa(e.target.value),onBirthDate:e=>this.setSetup('birthDate',e.target.value),onBirthTime:e=>this.setSetup('birthTime',e.target.value),
+      onToggleBreech:()=>this.setSetup('breech',!s.setup.breech),
+      breechCheck:s.setup.breech?'✓':'',
+      breechStyle:{display:'inline-flex',alignItems:'center',gap:'10px',padding:'10px 14px',borderRadius:'9px',border:'1px solid '+(s.setup.breech?'#3fb6c4':'#2c3740'),background:s.setup.breech?'#12333a':'transparent',color:s.setup.breech?'#8fe0ec':'#c4d0d9',fontSize:'13px',fontWeight:700,cursor:'pointer'},
+      breechBoxStyle:{width:'20px',height:'20px',flex:'none',borderRadius:'6px',border:'2px solid '+(s.setup.breech?'#8fe0ec':'#3a454d'),background:s.setup.breech?'#8fe0ec':'transparent',color:'#04252a',fontSize:'13px',fontWeight:800,display:'inline-flex',alignItems:'center',justifyContent:'center'},
+      onSetupCancel:()=>this.setState({showSetup:false}),
+      onCreateNow:()=>this.createAdmission(true),onCreateWithTime:()=>this.createAdmission(false),
+      admCards:[],hasAdms:false,noAdms:true,
+      adm:null,phases:[],tabs:[],ongoingGroups:[],ongoingPreview:[],debriefItems:[],summaryText:'',meds:{list:[],printRows:[]},
+      tabIsChecklist:false,tabIsGoals:false,tabIsDebrief:false,tabIsMeds:false,printSummary:true,needsVitals:false,hrifExempt:false,copyLabel:'Copy summary',
+      onCopy:()=>{},onPrint:()=>window.print(),onEmail:()=>{},createStyle:{},startNowStyle:{},roomOptions:[]
+    };
+    const occupied={};live.forEach(a=>{occupied[a.room]=true;});
+    base.roomOptions=Array.from({length:20},(_,i)=>'ICN-'+(i+1)).map(r=>{const sel=s.setup.room===r;const occ=!!occupied[r];return{label:r,onSelect:()=>{if(!occ)this.setSetup('room',r);},style:{padding:'9px 4px',borderRadius:'8px',border:'1px solid '+(sel?'#3fb6c4':occ?'#232d34':'#2c3740'),background:sel?'#12333a':occ?'#12181d':'transparent',color:sel?'#8fe0ec':occ?'#4a5560':'#c4d0d9',fontSize:'12px',fontWeight:700,cursor:occ?'not-allowed':'pointer',textDecoration:occ?'line-through':'none'}};});
+    const canCreate=!!s.setup.room;
+    base.startNowStyle={width:'100%',padding:'15px',borderRadius:'11px',border:'none',background:canCreate?'#3fb6c4':'#233038',color:canCreate?'#04252a':'#5f6f7b',fontSize:'16px',fontWeight:800,cursor:canCreate?'pointer':'not-allowed'};
+    base.createStyle={flex:'none',padding:'10px 14px',borderRadius:'9px',border:'1px solid '+(canCreate?'#35525a':'#233038'),background:'transparent',color:canCreate?'#7fdbe6':'#5f6f7b',fontSize:'13px',fontWeight:700,cursor:canCreate?'pointer':'not-allowed',whiteSpace:'nowrap'};
+
+    base.admCards=live.map(a=>{const nm=this.molOf(a,now);const c=this.counts(a);const od=this.anyOverdue(a,nm);const complete=c.pct===100;const tc=this.tColor(nm);
+      return{room:a.room||'—',sub:(a.ga?a.ga+' wk':'GA —')+' · '+(a.bw?a.bw+' g':'BW —'),molLabel:nm+' MOL',
+        molStyle:{fontSize:'22px',fontWeight:800,fontVariantNumeric:'tabular-nums',color:tc||'#c4d0d9'},
+        pctLabel:c.d+'/'+c.t,statusText:complete?'complete':od?'action needed':'in progress',
+        onOpen:()=>this.openAdm(a.id),onDelete:e=>{e.stopPropagation();this.deleteAdmission(a.id);},
+        cardStyle:{padding:'16px 17px',borderRadius:'14px',border:'1px solid '+(od?'#4a2f2f':'#232d34'),background:'#12181d',cursor:'pointer'},
+        dotStyle:{width:'9px',height:'9px',borderRadius:'50%',display:'inline-block',background:complete?'#4bbf87':od?'#e2685c':'#3fb6c4'},
+        barFillStyle:{height:'100%',width:c.pct+'%',borderRadius:'999px',background:complete?'#4bbf87':od?'#e0a54e':'#3fb6c4'}};
+    });
+    base.hasAdms=base.admCards.length>0;base.noAdms=!base.hasAdms;
+
+    const adm=s.activeId?s.admissions[s.activeId]:null;
+    if(s.screen==='admission'&&adm&&!adm.deleted){
+      base.isHome=false;base.isAdmission=true;
+      const ctx=this.ctxOf(adm);
+      const nowMol=this.molOf(adm,now);const c=this.counts(adm);
+      const molC=this.tColor(nowMol)||'#e6ecf0';
+      const admitOn=adm.admitMs!=null;
+      let arrLabel='',arrC='#c4d0d9';
+      if(admitOn){const secs=Math.max(0,Math.floor((now-adm.admitMs)/1000));const amin=Math.floor(secs/60);arrLabel=amin+':'+this.pad2(secs%60);arrC=this.tColor(amin)||'#c4d0d9';}
+      const barPct=Math.min(100,GH?(nowMol/GH*100):0);
+      const dp=this.depths(adm);
+      base.needsVitals=!ctx.known;
+      base.hrifExempt=ctx.known&&!this.hrifQualifies(ctx);
+      base.adm={
+        room:adm.room||'—',metaText:'born '+this.fmtDateTime(adm.birthMs)+(adm.breech?' · breech':''),
+        molBirth:nowMol,molBigStyle:{fontSize:'40px',fontWeight:800,lineHeight:1,fontVariantNumeric:'tabular-nums',color:molC},
+        birthTimeVal:this.fmtInput(adm.birthMs),onEditBirth:e=>this.editBirth(adm.id,e.target.value),
+        admitOn,admitOff:!admitOn,onStartAdmit:()=>this.startAdmit(adm.id),
+        sinceArrLabel:arrLabel,arrStyle:{fontSize:'26px',fontWeight:800,fontVariantNumeric:'tabular-nums',color:arrC},
+        admitTimeVal:this.fmtInput(adm.admitMs),onEditAdmit:e=>this.editAdmit(adm.id,e.target.value),
+        bwBig:adm.bw?adm.bw+' g':'— g',gaBig:adm.ga?adm.ga+' wk':'GA —',
+        hasDepths:!!dp,depths:dp||[],fluidRows:this.fluidRows(adm),
+        pct:c.pct,pctLabel:c.d+'/'+c.t,
+        barFillStyle:{height:'100%',width:barPct+'%',borderRadius:'999px',background:this.tColor(nowMol)||'#3fb6c4',transition:'width .5s linear'},
+        ticks:[10,20,40,60].map(t=>{const lp=GH?Math.min(100,t/GH*100):0;return{label:t,style:{position:'absolute',left:lp+'%',transform:'translateX(-50%)',fontSize:'10px',fontWeight:700,color:nowMol>=t?'#3fb6c4':'#5f6f7b'}};}),
+        hasPast60:nowMol>GH,past60:'+'+(nowMol-GH)+' min past '+GH+"' golden hour"
+      };
+      base.phases=this.PHASES.map(ph=>{const pc=this.phaseCounts(adm,ph);const complete=pc.t>0&&pc.d===pc.t;const overdue=!complete&&nowMol>ph.target&&pc.d<pc.t;
+        return{title:ph.title,targetLabel:'complete by '+ph.target+' MOL',countLabel:pc.d+'/'+pc.t,note:ph.note||'',hasNote:!!ph.note,
+          statusLabel:complete?'✓ complete':overdue?'overdue':(nowMol>=ph.target-5?'in progress':'upcoming'),
+          statusStyle:{fontSize:'12px',fontWeight:800,color:complete?'#4bbf87':overdue?'#f0a89f':'#7fb0d8',whiteSpace:'nowrap'},
+          headerStyle:{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'10px',padding:'11px 14px',borderRadius:'11px',background:overdue?'#241a1b':'#14212f',border:'1px solid '+(overdue?'#4a2f2f':'#213a52')},
+          items:ph.items.filter(it=>this.relevant(adm,it)).map(it=>this.itemVM(adm,it,nowMol))};
+      });
+      base.tabs=[['checklist','Checklist'],['meds','Meds'],['goals','Ongoing'],['debrief','Debrief']].map(t=>({label:t[1],onClick:()=>this.setTab(t[0]),style:{flex:'1',padding:'9px 6px',borderRadius:'9px',border:'none',cursor:'pointer',fontSize:'13px',fontWeight:700,background:s.tab===t[0]?'#3fb6c4':'transparent',color:s.tab===t[0]?'#04252a':'#8a99a5',whiteSpace:'nowrap'}}));
+      base.tabIsChecklist=s.tab==='checklist';base.tabIsGoals=s.tab==='goals';base.tabIsDebrief=s.tab==='debrief';base.tabIsMeds=s.tab==='meds';
+      base.printSummary=!base.tabIsMeds;
+      base.meds=this.medVMs(adm);
+
+      const og=this.ongoingFor(adm);
+      base.ongoingPreview=og.map(g=>{const e=(adm.long||{})[g.id];const done=!!(e&&e.done);const sys=this.SYS[g.sys]||this.SYS.admin;
+        return{label:g.label,hasTrigger:!!g.trigger,trigger:g.trigger||'',triggerStyle:this.triggerStyle(),
+          dotStyle:{width:'7px',height:'7px',borderRadius:'50%',flex:'none',marginTop:'7px',background:done?'#4bbf87':sys.c},
+          labelStyle:{fontSize:'13.5px',lineHeight:'1.45',fontWeight:600,color:done?'#6f8a80':'#a7b6c1',textDecoration:done?'line-through':'none'},
+          rowStyle:{display:'flex',gap:'10px',alignItems:'flex-start',padding:'7px 11px',borderRadius:'9px',background:'#12181d',border:'1px solid #1c242a'}};
+      });
+      const mkOg=g=>{const e=(adm.long||{})[g.id];const done=!!(e&&e.done);const sys=this.SYS[g.sys]||this.SYS.admin;const open=!!s.expanded[g.id];
+        return{label:g.label,check:done?'✓':'',onToggle:()=>this.toggleLong(adm.id,g.id),
+          hasTrigger:!!g.trigger,trigger:g.trigger||'',triggerStyle:this.triggerStyle(),
+          hasNote:!!g.note,note:g.note||'',noteStyle:this.noteStyle(false),
+          hasBullets:!!(g.bullets&&g.bullets.length),bullets:g.bullets||[],bulletsOpen:open,expandLabel:open?'Hide details':'Show details',onExpand:()=>this.toggleExpand(g.id),
+          labelStyle:{fontSize:'15px',lineHeight:'1.35',fontWeight:600,color:done?'#93b0a6':'#e6ecf0'},
+          showSys:(this.props.showClinicalTags??true),sysLabel:sys.l+(g.consider?' · consider':''),sysStyle:{fontSize:'11px',fontWeight:700,letterSpacing:'.03em',textTransform:'uppercase',color:sys.c},
+          boxStyle:{width:'28px',height:'28px',flex:'none',borderRadius:'8px',border:'2px solid '+(done?'#4bbf87':'#3a454d'),background:done?'#4bbf87':'transparent',color:'#0f1417',fontSize:'16px',fontWeight:800,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',marginTop:'1px'},
+          rowStyle:{display:'flex',gap:'12px',alignItems:'flex-start',padding:'13px 14px',borderRadius:'11px',border:'1px solid #232d34',borderLeft:'4px solid '+(done?'#4bbf87':sys.c),background:done?'#111c19':'#161d22'}};
+      };
+      const care=og.filter(g=>g.sys!=='screen'&&g.sys!=='family');
+      const scr=og.filter(g=>g.sys==='screen'||g.sys==='family');
+      base.ongoingGroups=[{title:'Nursing & ongoing care',items:care.map(mkOg)},{title:'Screening & follow-up',items:scr.map(mkOg)}].filter(g=>g.items.length>0);
+
+      base.debriefItems=this.DEBRIEF.map(d=>{const e=(adm.debrief||{})[d.id];const v=(e&&e.v)||'';if(d.kind==='text')return{label:d.label,isText:true,isChoice:false,value:v,onChange:ev=>this.setDebrief(adm.id,d.id,ev.target.value),options:[]};return{label:d.label,isText:false,isChoice:true,value:v,options:d.options.map(o=>({label:o,onSelect:()=>this.setDebrief(adm.id,d.id,o),style:this.optStyle(v===o)}))};});
+      base.summaryText=this.buildSummary(adm,nowMol);
+      base.copyLabel=s.copied?'Copied ✓':'Copy summary';
+      base.onCopy=()=>this.doCopy(base.summaryText);base.onEmail=()=>this.doEmail(adm.room,base.summaryText);base.onPrint=()=>window.print();
+    }
+    return base;
+  }
+}
+</script>
+</body>
+</html>
