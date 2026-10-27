@@ -39,7 +39,7 @@ button,input,textarea,select{font-family:inherit}
 
 <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
 <div style="max-width:780px;margin:0 auto;padding:30px 20px 70px">
-  <header style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:26px">
+  <header style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px 16px;margin-bottom:26px;flex-wrap:wrap">
     <div>
       <div style="display:flex;align-items:center;gap:10px">
         <span style="width:11px;height:11px;border-radius:3px;background:#3fb6c4;display:inline-block"></span>
@@ -48,7 +48,10 @@ button,input,textarea,select{font-family:inherit}
       </div>
       <p style="margin:6px 0 0;color:#8a99a5;font-size:14px">Golden Hour Admission · Preterm Task Tool — shared board</p>
     </div>
-    <button onClick="{{ onOpenRoles }}" style="{{ rolesBtnStyle }}">{{ rolesBtnLabel }}</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+      <button onClick="{{ onOpenFeedback }}" style="{{ fbBtnStyle }}" title="Send feedback" aria-label="Send feedback">{{ fbBtnLabel }}</button>
+      <button onClick="{{ onOpenRoles }}" style="{{ rolesBtnStyle }}">{{ rolesBtnLabel }}</button>
+    </div>
   </header>
 
   <button onClick="{{ onNew }}" style="width:100%;padding:16px;border-radius:12px;border:1px dashed #35525a;background:#10262b;color:#7fdbe6;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:24px">+ New admission</button>
@@ -87,7 +90,8 @@ button,input,textarea,select{font-family:inherit}
   </sc-if>
 
   <footer style="margin-top:28px;font-size:12px;color:#5f6f7b;line-height:1.55;text-align:center">
-    Shared board — checks sync to every device. Label by bed space only; no names/MRN.
+    Shared board — checks sync to every device. Label by bed space only; no names/MRN.<br>
+    <button onClick="{{ onOpenFeedback }}" style="margin-top:8px;border:none;background:transparent;color:#7fdbe6;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;padding:0">Send feedback</button>
   </footer>
 </div>
 </sc-if>
@@ -101,6 +105,7 @@ button,input,textarea,select{font-family:inherit}
         <div style="display:flex;align-items:center;gap:9px"><span style="font-size:17px;font-weight:800;color:#e6ecf0">{{ adm.room }}</span><span style="{{ syncBadgeStyle }}"><span style="{{ syncDotStyle }}"></span>{{ syncLabel }}</span></div>
         <div style="font-size:12px;color:#7f8f9b">{{ adm.metaText }}</div>
       </div>
+      <sc-if value="{{ wideView }}" hint-placeholder-val="wv"><button onClick="{{ onOpenFeedback }}" style="{{ fbBtnStyle }}" title="Send feedback" aria-label="Send feedback">{{ fbBtnLabel }}</button></sc-if>
       <button onClick="{{ onOpenRoles }}" style="{{ rolesBtnStyle }}">{{ rolesBtnLabel }}</button>
     </div>
 
@@ -366,6 +371,7 @@ button,input,textarea,select{font-family:inherit}
     </sc-if>
 
   </div>
+  <div class="gh-noprint" style="text-align:center;padding:6px 16px 40px"><button onClick="{{ onOpenFeedback }}" style="border:none;background:transparent;color:#7fdbe6;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer;padding:0">Send feedback</button></div>
 </div>
 </sc-if>
 
@@ -401,6 +407,31 @@ button,input,textarea,select{font-family:inherit}
 
     <div style="display:flex;justify-content:flex-start;margin-top:18px">
       <button onClick="{{ onSetupCancel }}" style="padding:10px 16px;border-radius:9px;border:1px solid #2a343b;background:transparent;color:#9fb0bd;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ fbOpen }}" hint-placeholder-val="fb">
+<div style="position:fixed;inset:0;z-index:60;background:rgba(5,8,10,.66);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:26px 16px;overflow:auto">
+  <div style="width:min(520px,94vw);background:#161d22;border:1px solid #2a343b;border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h2 style="margin:0;font-size:20px;font-weight:800">Feedback on GHAPTT</h2>
+      <button onClick="{{ onCloseFeedback }}" style="width:34px;height:34px;border-radius:9px;border:1px solid #2a343b;background:#0f1417;color:#c4d0d9;font-size:16px;cursor:pointer">✕</button>
+    </div>
+    <div style="font-size:13px;color:#8a99a5;line-height:1.5">What worked, what got in the way, what’s missing. Goes to Dr. Sangoram. <b style="color:#e0b070">Please don’t include patient identifiers.</b></div>
+    <textarea value="{{ fbText }}" onChange="{{ onFbText }}" placeholder="Your comments" rows="6" style="font-size:15px;line-height:1.45;color:#e6ecf0;background:#0f1417;border:1px solid #2c3740;border-radius:10px;padding:10px 12px;resize:vertical"></textarea>
+    <input type="text" value="{{ fbName }}" onChange="{{ onFbName }}" placeholder="Your name / role (optional)" style="font-size:14px;color:#e6ecf0;background:#0f1417;border:1px solid #2c3740;border-radius:10px;padding:9px 12px">
+    <button onClick="{{ onFbCtx }}" style="display:flex;align-items:flex-start;gap:9px;border:none;background:transparent;cursor:pointer;text-align:left;padding:2px 0">
+      <span style="{{ fbCtxBoxStyle }}">{{ fbCtxGlyph }}</span>
+      <span style="font-size:12.5px;color:#c4d0d9;line-height:1.4">Include screen context <span style="color:#6f7f8b">({{ fbCtxText }})</span></span>
+    </button>
+    <sc-if value="{{ fbHasErr }}" hint-placeholder-val="fe"><div style="font-size:12.5px;font-weight:700;color:#f0a89f">{{ fbErr }}</div></sc-if>
+    <sc-if value="{{ fbSent }}" hint-placeholder-val="fs"><div style="font-size:13px;font-weight:700;color:#7fe0b0;background:#11261d;border:1px solid #24533d;border-radius:8px;padding:8px 11px">Thanks — feedback sent.</div></sc-if>
+    <sc-if value="{{ fbFailed }}" hint-placeholder-val="ff"><div style="font-size:12.5px;font-weight:700;color:#e0b070;background:#2a2214;border:1px solid #4a3c22;border-radius:8px;padding:8px 11px">Couldn’t send from here. Use “Email instead” — it opens a pre-filled email.</div></sc-if>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap">
+      <a href="{{ fbMailto }}" style="font-size:13px;font-weight:600;color:#7fdbe6;text-decoration:underline">Email instead</a>
+      <button onClick="{{ onSendFeedback }}" style="{{ fbSendStyle }}">{{ fbSendLabel }}</button>
     </div>
   </div>
 </div>
@@ -580,7 +611,7 @@ class Component extends DCLogic {
       {role:'RT',desc:'Prepare CPAP or respiratory support; aid in getting a gas at admission.',bullets:[]},
       {role:'UA',desc:'Admit patient into EPIC & call Xray.',bullets:[]}
     ];
-    this.state={screen:'home',activeId:null,tab:'checklist',showSetup:false,showRoles:false,setup:this.blankSetup(),admissions:{},now:Date.now(),copied:false,mode:'checking',myRole:'',expanded:{},medBig:false,wide:typeof window!=='undefined'&&window.innerWidth>=820};
+    this.state={screen:'home',activeId:null,tab:'checklist',showSetup:false,showRoles:false,setup:this.blankSetup(),admissions:{},now:Date.now(),copied:false,mode:'checking',myRole:'',expanded:{},medBig:false,fbOpen:false,fbText:'',fbName:'',fbCtx:false,fbState:'',fbErr:'',wide:typeof window!=='undefined'&&window.innerWidth>=820};
   }
   pad2(n){return String(n).padStart(2,'0');}
   blankSetup(){const d=new Date();return{room:'',ga:'',bw:'',breech:false,birthDate:d.getFullYear()+'-'+this.pad2(d.getMonth()+1)+'-'+this.pad2(d.getDate()),birthTime:this.pad2(d.getHours())+':'+this.pad2(d.getMinutes())};}
@@ -822,6 +853,18 @@ class Component extends DCLogic {
       onBig:()=>this.setState(st=>({medBig:!st.medBig}))};
   }
 
+  fbContext(){const s=this.state;const adm=s.activeId?s.admissions[s.activeId]:null;
+    if(s.screen!=='admission'||!adm||adm.deleted){const n=this.liveAdms(s.admissions).length;return 'Board · '+n+' active admission'+(n===1?'':'s');}
+    return 'Bed '+(adm.room||'—')+' · '+(adm.ga?adm.ga+' wk':'GA —')+' · '+(adm.bw?adm.bw+' g':'BW —')+' · '+this.molOf(adm,Date.now())+' MOL · '+s.tab+' tab';}
+  fbMailto(){const s=this.state;const body=(s.fbText||'')+'\n\n— '+(s.fbName||'anonymous')+(s.fbCtx?('\nContext: '+this.fbContext()):'')+'\nSent from '+location.host+' · '+new Date().toLocaleString();
+    return 'mailto:sangoram@gmail.com?subject='+encodeURIComponent('GHAPTT feedback')+'&body='+encodeURIComponent(body);}
+  async sendFeedback(){const s=this.state;const text=String(s.fbText||'').trim();
+    if(!text){this.setState({fbErr:'Write a comment first.'});return;}
+    this.setState({fbState:'sending',fbErr:''});
+    const data={'form-name':'feedback','bot-field':'',name:s.fbName||'',comments:text,context:s.fbCtx?this.fbContext():'',page:location.host+' · '+new Date().toISOString()};
+    const body=Object.keys(data).map(k=>encodeURIComponent(k)+'='+encodeURIComponent(data[k])).join('&');
+    try{const r=await fetch('/feedback-form.html',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});if(!r.ok)throw 0;this.setState({fbState:'sent',fbText:''});}
+    catch(e){this.setState({fbState:'failed'});}}
   renderVals(){
     const s=this.state,now=s.now;
     const GH=this.props.goldenHourMinutes??60;
@@ -837,6 +880,17 @@ class Component extends DCLogic {
       rolesBtnStyle:{flex:'none',padding:'9px 14px',borderRadius:'9px',border:'1px solid '+(s.myRole?'#2a343b':'#4a3c22'),background:'#161d22',color:s.myRole?'#7fdbe6':'#e0b070',fontSize:'13px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'},
       onNew:()=>this.setState({showSetup:true,setup:this.blankSetup()}),
       onOpenRoles:()=>this.setState({showRoles:true}),onCloseRoles:()=>this.setState({showRoles:false}),
+      fbOpen:s.fbOpen,onOpenFeedback:()=>this.setState({fbOpen:true,fbState:'',fbErr:''}),onCloseFeedback:()=>this.setState({fbOpen:false}),
+      fbBtnLabel:s.wide?'Feedback':'✉',wideView:!!s.wide,
+      fbBtnStyle:{flex:'none',padding:s.wide?'9px 14px':'9px 11px',borderRadius:'9px',border:'1px solid #2a343b',background:'#161d22',color:'#c4d0d9',fontSize:'13px',fontWeight:600,cursor:'pointer',whiteSpace:'nowrap'},
+      fbText:s.fbText,onFbText:e=>this.setState({fbText:e.target.value,fbErr:'',fbState:s.fbState==='sent'?'':s.fbState}),
+      fbName:s.fbName,onFbName:e=>this.setState({fbName:e.target.value}),
+      onFbCtx:()=>this.setState({fbCtx:!s.fbCtx}),fbCtxGlyph:s.fbCtx?'✓':'',fbCtxText:this.fbContext(),
+      fbCtxBoxStyle:{width:'20px',height:'20px',flex:'none',borderRadius:'6px',border:'2px solid '+(s.fbCtx?'#8fe0ec':'#3a454d'),background:s.fbCtx?'#8fe0ec':'transparent',color:'#04252a',fontSize:'12px',fontWeight:800,display:'inline-flex',alignItems:'center',justifyContent:'center'},
+      onSendFeedback:()=>this.sendFeedback(),fbMailto:this.fbMailto(),
+      fbSending:s.fbState==='sending',fbSent:s.fbState==='sent',fbFailed:s.fbState==='failed',fbHasErr:!!s.fbErr,fbErr:s.fbErr||'',
+      fbSendLabel:s.fbState==='sending'?'Sending…':'Send feedback',
+      fbSendStyle:{border:'none',background:'#3fb6c4',color:'#04252a',borderRadius:'10px',padding:'10px 16px',fontSize:'14px',fontWeight:800,cursor:'pointer'},
       onBack:()=>this.setState({screen:'home'}),
       onGotoGoals:()=>this.setTab('goals'),
       roleRef:this.ROLE_REF.map(r=>({role:r.role,desc:r.desc,hasDesc:!!r.desc,bullets:r.bullets,hasBullets:r.bullets.length>0})),
